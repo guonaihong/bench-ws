@@ -24,3 +24,5 @@ go.work
 /test-client-linux
 /autobahn-quickws-linux
 /autobahn-quickws
+/gws-async-write-server
+/gws-sync-write-server

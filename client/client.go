@@ -112,19 +112,19 @@ func (c *Client) consumer(data chan struct{}) {
 	}
 }
 
-func (c *Client) printQps(now time.Time) {
+func (c *Client) printQps(now time.Time, sec *int) {
 	count := atomic.LoadInt64(&int64Count)
 	n := int64(time.Since(now).Seconds())
 	if n == 0 {
 		n = 1
 	}
-	fmt.Printf("count: %d, qps: %d\n", count, count/n)
+  fmt.Printf("sec: %d, count: %d, qps: %d\n", *sec, count, count/n)
 }
 
 func (c *Client) Run(now time.Time) {
-	for {
+  for sec := 0; ;sec++{
 		time.Sleep(time.Second)
-		c.printQps(now)
+		c.printQps(now, &sec)
 	}
 }
 
@@ -139,5 +139,4 @@ func main() {
 	go c.producer(data)
 	go c.Run(now)
 	c.consumer(data)
-	c.printQps(now)
 }

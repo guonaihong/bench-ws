@@ -9,7 +9,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"time"
 
 	"github.com/antlabs/quickws"
 	//"os"
@@ -18,7 +17,7 @@ import (
 type echoHandler struct{}
 
 func (e *echoHandler) OnOpen(c *quickws.Conn) {
-	fmt.Printf("OnOpen: %p\n", c)
+	// fmt.Printf("OnOpen: %p\n", c)
 }
 
 func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) {
@@ -37,10 +36,11 @@ func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := quickws.Upgrade(w, r,
 		quickws.WithServerReplyPing(),
-		quickws.WithServerDecompression(),
+		// quickws.WithServerDecompression(),
 		quickws.WithServerIgnorePong(),
 		quickws.WithServerCallback(&echoHandler{}),
-		quickws.WithServerReadTimeout(5*time.Second),
+		quickws.WithWindowsMultipleTimesPayloadSize(1),
+		// quickws.WithServerReadTimeout(5*time.Second),
 	)
 	if err != nil {
 		fmt.Println("Upgrade fail:", err)
