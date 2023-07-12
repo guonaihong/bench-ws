@@ -8,11 +8,23 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
+
+	// _ "net/http/pprof"
 
 	"github.com/antlabs/quickws"
+	"github.com/guonaihong/clop"
 	//"os"
 )
+
+type Config struct {
+	DisableUtf8 bool `clop:"short;long" usage:"disable utf8"`
+	// 几倍的窗口大小
+	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
+	// 使用bufio的解析方式
+	UseBufio bool `clop:"short;long" usage:"use bufio"`
+	// 打开tcp nodealy
+	OpenDelay bool `clop:"short;long" usage:"tcp no delay"`
+}
 
 type echoHandler struct{}
 
@@ -33,15 +45,32 @@ func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
 }
 
 // echo测试服务
-func echo(w http.ResponseWriter, r *http.Request) {
-	c, err := quickws.Upgrade(w, r,
+func (cnf *Config) echo(w http.ResponseWriter, r *http.Request) {
+	size := float32(1.0)
+	if cnf.WindowsMultipleTimesPayloadSize > 0 {
+		size = float32(cnf.WindowsMultipleTimesPayloadSize)
+	}
+	opt := []quickws.ServerOption{
 		quickws.WithServerReplyPing(),
 		// quickws.WithServerDecompression(),
 		quickws.WithServerIgnorePong(),
 		quickws.WithServerCallback(&echoHandler{}),
-		quickws.WithWindowsMultipleTimesPayloadSize(1),
 		// quickws.WithServerReadTimeout(5*time.Second),
-	)
+		quickws.WithWindowsMultipleTimesPayloadSize(size),
+	}
+
+	if cnf.OpenDelay {
+		opt = append(opt, quickws.WithServerTCPDelay())
+	}
+	if cnf.UseBufio {
+		opt = append(opt, quickws.WithBufioParseMode())
+	}
+
+	if cnf.DisableUtf8 {
+		opt = append(opt, quickws.WithServerDisableUTF8Check())
+	}
+
+	c, err := quickws.Upgrade(w, r, opt...)
 	if err != nil {
 		fmt.Println("Upgrade fail:", err)
 		return
@@ -51,11 +80,14 @@ func echo(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	var conf Config
+	clop.Bind(&conf)
+
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/autobahn", echo)
+	mux.HandleFunc("/", conf.echo)
 
 	go func() {
-		log.Println(http.ListenAndServe(":6060", nil))
+		// log.Println(http.ListenAndServe(":6060", nil))
 	}()
 	rawTCP, err := net.Listen("tcp", ":9001")
 	if err != nil {

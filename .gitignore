@@ -26,3 +26,5 @@ go.work
 /autobahn-quickws
 /gws-async-write-server
 /gws-sync-write-server
+/*.linux
+/*.mac

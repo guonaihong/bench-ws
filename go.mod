@@ -3,14 +3,14 @@ module github.com/guonaihong/my-bench-ws
 go 1.20
 
 require (
-	github.com/antlabs/quickws v0.0.8-0.20230705151831-4ba5b3112bf5
+	github.com/antlabs/quickws v0.0.8-0.20230712141850-1ac266af7063
 	github.com/guonaihong/clop v0.2.11
-	github.com/lxzan/gws v1.6.1-alpha
+	github.com/lxzan/gws v1.6.1-alpha2
 )
 
 require (
 	github.com/antlabs/strsim v0.0.2 // indirect
-	github.com/antlabs/wsutil v0.0.8-0.20230705053017-ec91fb6499a0 // indirect
+	github.com/antlabs/wsutil v0.0.8 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
