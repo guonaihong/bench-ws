@@ -24,7 +24,7 @@ type Client struct {
 	// 协程数
 	Concurrency int `clop:"short;long" usage:"concurrency" default:"1000"`
 
-	CloseCheck bool `clop:"long" usage:"close check"`
+	OpenCheck bool `clop:"long" usage:"open check"`
 }
 
 var int64Count int64
@@ -39,7 +39,7 @@ type echoHandler struct {
 	total int
 	curr  int
 
-	closeCheck bool
+	OpenCheck bool
 }
 
 func (e *echoHandler) OnOpen(c *quickws.Conn) {
@@ -54,7 +54,7 @@ func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) 
 	// fmt.Println("OnMessage:", c, op, msg)
 	if op == quickws.Text || op == quickws.Binary {
 		c.WriteMessage(op, payload)
-		if !e.closeCheck {
+		if e.OpenCheck {
 			if !bytes.Equal(msg, payload) {
 				panic("payload not equal")
 			}
@@ -78,7 +78,7 @@ func (client *Client) runTest(currTotal int, data chan struct{}) {
 		quickws.WithClientReplyPing(),
 		// quickws.WithClientCompression(),
 		// quickws.WithClientDecompressAndCompress(),
-		quickws.WithClientCallback(&echoHandler{total: currTotal, data: data, closeCheck: client.CloseCheck}),
+		quickws.WithClientCallback(&echoHandler{total: currTotal, data: data, OpenCheck: client.OpenCheck}),
 		// quickws.WithClientCallback(&echoHandler{done: done}),
 	)
 	if err != nil {
@@ -118,11 +118,11 @@ func (c *Client) printQps(now time.Time, sec *int) {
 	if n == 0 {
 		n = 1
 	}
-  fmt.Printf("sec: %d, count: %d, qps: %d\n", *sec, count, count/n)
+	fmt.Printf("sec: %d, count: %d, qps: %d\n", *sec, count, count/n)
 }
 
 func (c *Client) Run(now time.Time) {
-  for sec := 0; ;sec++{
+	for sec := 0; ; sec++ {
 		time.Sleep(time.Second)
 		c.printQps(now, &sec)
 	}
