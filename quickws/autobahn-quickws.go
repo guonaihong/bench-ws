@@ -37,7 +37,7 @@ func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) 
 	// if err := c.WriteTimeout(op, msg, 3*time.Second); err != nil {
 	// 	fmt.Println("write fail:", err)
 	// }
-	c.WriteMessage(op, msg)
+	c.WriteMessage2(op, msg)
 }
 
 func (e *echoHandler) OnClose(c *quickws.Conn, err error) {

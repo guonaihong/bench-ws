@@ -3,7 +3,7 @@ module github.com/guonaihong/my-bench-ws
 go 1.20
 
 require (
-	github.com/antlabs/quickws v0.0.8-0.20230714143757-fc86b80d4b9f
+	github.com/antlabs/quickws 6821642781ad96078a84ec38c29e84231b9dfea8 
 	github.com/guonaihong/clop v0.2.11
 	github.com/lxzan/gws v1.6.1
 )
