@@ -12,7 +12,7 @@ func main() {
 	clop.Bind(h)
 	app := gws.NewServer(h, &gws.ServerOption{
 		// CompressEnabled:  true,
-		CheckUtf8Enabled: true,
+		CheckUtf8Enabled: false,
 	})
 	log.Fatalf("%v", app.Run(":8001"))
 }

@@ -1,9 +1,9 @@
-github.com/antlabs/quickws v0.0.8-0.20230714143757-fc86b80d4b9f h1:tqpeh1zE6h0Fb+RxGsdFPPT+EQUjpgqzzAKCgpTzAxY=
-github.com/antlabs/quickws v0.0.8-0.20230714143757-fc86b80d4b9f/go.mod h1:L5gMNZxQZtGnBDSbrvIVeEXR+bXN+0mtaniumb72JYo=
+github.com/antlabs/quickws v0.0.8-0.20230717145542-32b9ee422e10 h1:5jbJrHeHudYkeJorVSMlLH+Zi5A5mInpTnszus/QXbE=
+github.com/antlabs/quickws v0.0.8-0.20230717145542-32b9ee422e10/go.mod h1:aJMrWt6IXl7gjAzKbU2T8f7xfyQCTDAAzvqiGgpv7SI=
 github.com/antlabs/strsim v0.0.2 h1:R4qjokEegYTrw+fkcYj3/UndG9Cn136fH+fpw9TIz9k=
 github.com/antlabs/strsim v0.0.2/go.mod h1:95XAAF2dJK9IiZMc0Ue6H9t477/i6fvYoMoeey8sEnc=
-github.com/antlabs/wsutil v0.0.9-0.20230714141652-f7a6614364f1 h1:LHBIJ1e0Rt5mqeGm31dJf+BP9g19WgUxgd1gOPcIkc8=
-github.com/antlabs/wsutil v0.0.9-0.20230714141652-f7a6614364f1/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
+github.com/antlabs/wsutil v0.0.9 h1:CNURXjtBZ3O/5xp+uimBtAoxR309R4QS1uxGJ/QCp+c=
+github.com/antlabs/wsutil v0.0.9/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

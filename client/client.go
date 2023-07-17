@@ -43,7 +43,7 @@ type echoHandler struct {
 }
 
 func (e *echoHandler) OnOpen(c *quickws.Conn) {
-	c.WriteMessage2(quickws.Binary, payload)
+	c.WriteMessage(quickws.Binary, payload)
 }
 
 func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) {
