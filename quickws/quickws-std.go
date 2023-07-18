@@ -76,7 +76,7 @@ func (cnf *Config) echo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.ReadLoop()
+	c.StartReadLoop()
 }
 
 func main() {
