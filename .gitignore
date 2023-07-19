@@ -28,3 +28,4 @@ go.work
 /gws-sync-write-server
 /*.linux
 /*.mac
+/gorilla
