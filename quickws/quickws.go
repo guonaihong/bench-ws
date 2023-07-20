@@ -26,6 +26,8 @@ type Config struct {
 	OpenDelay bool `clop:"short;long" usage:"tcp no delay"`
 }
 
+var upgrader *quickws.UpgradeServer
+
 type echoHandler struct{}
 
 func (e *echoHandler) OnOpen(c *quickws.Conn) {
@@ -46,6 +48,19 @@ func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
 
 // echo测试服务
 func (cnf *Config) echo(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r)
+	if err != nil {
+		fmt.Println("Upgrade fail:", err)
+		return
+	}
+
+	c.StartReadLoop()
+}
+
+func main() {
+	var cnf Config
+	clop.Bind(&cnf)
+
 	size := float32(1.0)
 	if cnf.WindowsMultipleTimesPayloadSize > 0 {
 		size = float32(cnf.WindowsMultipleTimesPayloadSize)
@@ -62,6 +77,7 @@ func (cnf *Config) echo(w http.ResponseWriter, r *http.Request) {
 	if cnf.OpenDelay {
 		opt = append(opt, quickws.WithServerTCPDelay())
 	}
+
 	if cnf.UseBufio {
 		opt = append(opt, quickws.WithBufioParseMode())
 	}
@@ -70,21 +86,10 @@ func (cnf *Config) echo(w http.ResponseWriter, r *http.Request) {
 		opt = append(opt, quickws.WithServerDisableUTF8Check())
 	}
 
-	c, err := quickws.Upgrade(w, r, opt...)
-	if err != nil {
-		fmt.Println("Upgrade fail:", err)
-		return
-	}
-
-	c.StartReadLoop()
-}
-
-func main() {
-	var conf Config
-	clop.Bind(&conf)
+	upgrader = quickws.NewUpgrade(opt...)
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/", conf.echo)
+	mux.HandleFunc("/", cnf.echo)
 
 	go func() {
 		// log.Println(http.ListenAndServe(":6060", nil))

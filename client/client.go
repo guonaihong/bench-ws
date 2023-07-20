@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	// _ "net/http/pprof"
+
 	"github.com/antlabs/quickws"
 	"github.com/guonaihong/clop"
 )
@@ -131,6 +133,9 @@ func (c *Client) Run(now time.Time) {
 func main() {
 	var c Client
 
+	go func() {
+		// log.Println(http.ListenAndServe(":6060", nil))
+	}()
 	clop.MustBind(&c)
 	payload = bytes.Repeat([]byte("𠜎"), c.PayloadSize/len("𠜎"))
 	data := make(chan struct{}, c.Total)
