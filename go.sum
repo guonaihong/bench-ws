@@ -1,9 +1,9 @@
-github.com/antlabs/quickws v0.0.8-0.20230718173244-1dec3bb7131e h1:FxCXO8hsGBiIriZrauMvA2iZmDpoA4rij2zDZ9DNxCY=
-github.com/antlabs/quickws v0.0.8-0.20230718173244-1dec3bb7131e/go.mod h1:wemjvA/09hwFc8XUXzaIEH+PxRds8/O9cKQ4bDw41sI=
+github.com/antlabs/quickws v0.0.8-0.20230720134744-a1d56ef03e75 h1:KIyCOCnH+T2eZ0AmafEz1KzNsGPLLxcg4mFI0aNFp4U=
+github.com/antlabs/quickws v0.0.8-0.20230720134744-a1d56ef03e75/go.mod h1:wmyYAAH6ASjKMmCe9Ngrjj74H9MaODptu7kh2nedPUI=
 github.com/antlabs/strsim v0.0.2 h1:R4qjokEegYTrw+fkcYj3/UndG9Cn136fH+fpw9TIz9k=
 github.com/antlabs/strsim v0.0.2/go.mod h1:95XAAF2dJK9IiZMc0Ue6H9t477/i6fvYoMoeey8sEnc=
-github.com/antlabs/wsutil v0.0.10 h1:5O5KdRH5qPasEhyOkXA+x3OcX7ICYnjSVkUmSDAP+0s=
-github.com/antlabs/wsutil v0.0.10/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
+github.com/antlabs/wsutil v0.0.11-0.20230719145545-cc6d4a700436 h1:CEYtI+iOfB8L3cvZGvJ7DsSZbz3cTo6FvSajXTX0bvk=
+github.com/antlabs/wsutil v0.0.11-0.20230719145545-cc6d4a700436/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -54,7 +54,6 @@ golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2/go.mod h1:9nx3DQGgdP8bBQD5qx
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210423082822-04245dca01da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.0.0-20210806184541-e5e7981a1069 h1:siQdpVirKtzPhKl3lZWozZraCFObP8S1v6PRp0bLrtU=
 golang.org/x/sys v0.0.0-20210806184541-e5e7981a1069/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.6.0 h1:MVltZSvRTcU2ljQOhs94SXPftV6DCNnZViHeQps87pQ=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
