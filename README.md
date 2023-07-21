@@ -1,4 +1,4 @@
-# my-bench-ws
+# bench-ws
 压测websocket(quickws)的仓库
 
 # tps压测

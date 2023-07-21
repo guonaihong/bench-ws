@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/antlabs/quickws v0.0.8-0.20230720134744-a1d56ef03e75
-	github.com/go-netty/go-netty-ws v0.0.0-20230609110133-51861cf6ab29
+	github.com/go-netty/go-netty-ws v0.0.0-20230721104156-2cf8a13b1786
 	github.com/gobwas/ws v1.2.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/guonaihong/clop v0.2.11
@@ -15,7 +15,7 @@ require (
 	github.com/antlabs/strsim v0.0.2 // indirect
 	github.com/antlabs/wsutil v0.0.11-0.20230719145545-cc6d4a700436 // indirect
 	github.com/go-netty/go-netty v1.6.3 // indirect
-	github.com/go-netty/go-netty-transport v1.7.1 // indirect
+	github.com/go-netty/go-netty-transport v1.7.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
