@@ -23,7 +23,7 @@ type Config struct {
 	// 使用bufio的解析方式
 	UseBufio bool `clop:"short;long" usage:"use bufio"`
 	// 打开tcp nodealy
-	OpenDelay bool `clop:"short;long" usage:"tcp no delay"`
+	OpenDelay bool `clop:"short;long" usage:"tcp delay"`
 }
 
 var upgrader *quickws.UpgradeServer

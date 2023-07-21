@@ -4,7 +4,7 @@
 # tps压测
 * 启动服务端的命令
 ```
-./autobahn-quickws.linux -d
+./quickws.linux -d
 ```
 * 启动客户端的命令
 ```
@@ -14,7 +14,7 @@
 # 流量压测
 * 启动服务端的命令
 ```
-/autobahn-quickws.linux -o -d -u
+/quickws.linux -o -d -u
 ```
 * 启动客户端的命令
 ```
