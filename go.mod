@@ -8,6 +8,7 @@ require (
 	github.com/gobwas/ws v1.2.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/guonaihong/clop v0.2.11
+	github.com/lesismal/nbio v1.3.17
 	github.com/lxzan/gws v1.6.1
 )
 
@@ -23,6 +24,7 @@ require (
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/lesismal/llib v1.1.12 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.7.0 // indirect

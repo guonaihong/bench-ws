@@ -16,7 +16,10 @@ func main() {
 	// 	nettyws.WithBufferSize(4096, 0),
 	// )
 
-	ws := nettyws.NewWebsocket(nettyws.WithBufferSize(4096, 0))
+	ws := nettyws.NewWebsocket(
+		nettyws.WithBinary(),
+		nettyws.WithBufferSize(4096, 0),
+	)
 	ws.OnData = func(conn nettyws.Conn, data []byte) {
 		conn.Write(data)
 	}
