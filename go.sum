@@ -9,8 +9,8 @@ dmitri.shuralyov.com/state v0.0.0-20180228185332-28bcc343414c/go.mod h1:0PRwlb0D
 git.apache.org/thrift.git v0.0.0-20180902110319-2566ecd5d999/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYUyUczH0OGQWaF5ceTx0UBShxjsH6f8oGKYe2c=
-github.com/antlabs/quickws v0.0.8 h1:32xgCekkjTS4/NMJnSlILPSKb0+ve9aiUlr2ekQOk7U=
-github.com/antlabs/quickws v0.0.8/go.mod h1:o+WlC1rP6sjV52pp2Ofr7aD2EkelHQFf4E21EaXM6/M=
+github.com/antlabs/quickws v0.0.9 h1:KwnLT7HwdsWl2HixVumJpy79w2xkUgoqI1BgOg0ilu0=
+github.com/antlabs/quickws v0.0.9/go.mod h1:o+WlC1rP6sjV52pp2Ofr7aD2EkelHQFf4E21EaXM6/M=
 github.com/antlabs/strsim v0.0.2 h1:R4qjokEegYTrw+fkcYj3/UndG9Cn136fH+fpw9TIz9k=
 github.com/antlabs/strsim v0.0.2/go.mod h1:95XAAF2dJK9IiZMc0Ue6H9t477/i6fvYoMoeey8sEnc=
 github.com/antlabs/wsutil v0.0.11 h1:T4pTMroxn3VXrDZyj5LvvidXbabaARzQYHQj3rySD3o=
@@ -129,8 +129,8 @@ github.com/lesismal/nbio v1.3.17/go.mod h1:KWlouFT5cgDdW5sMX8RsHASUMGniea9X0XIel
 github.com/libp2p/go-reuseport v0.3.0/go.mod h1:laea40AimhtfEqysZ71UpYj4S+R9VpH8PgqLo7L+SwI=
 github.com/lucas-clemente/quic-go v0.28.0/go.mod h1:oGz5DKK41cJt5+773+BSO9BXDsREY4HLf7+0odGAPO0=
 github.com/lunixbochs/vtclean v1.0.0/go.mod h1:pHhQNgMf3btfWnGBVipUOjRYhoOsdGqdm/+2c2E2WMI=
-github.com/lxzan/gws v1.6.1 h1:YebtjUiDpPJO8/PSGddTItWbptHhSIxMb01LVRKr7uw=
-github.com/lxzan/gws v1.6.1/go.mod h1:dsC6S7kJNh+iWqqu2HiO8tnNCji04HwyJCYfTOS+6iY=
+github.com/lxzan/gws v1.6.4 h1:SL0bF3e6wQlygDQu/h9rPDtEPfyMZQy8ix8bvJw6qTE=
+github.com/lxzan/gws v1.6.4/go.mod h1:dsC6S7kJNh+iWqqu2HiO8tnNCji04HwyJCYfTOS+6iY=
 github.com/mailru/easyjson v0.0.0-20190312143242-1de009706dbe/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
 github.com/marten-seemann/qpack v0.2.1/go.mod h1:F7Gl5L1jIgN1D11ucXefiuJS9UMVP2opoCp2jDKb7wc=
 github.com/marten-seemann/qtls-go1-16 v0.1.5/go.mod h1:gNpI2Ol+lRS3WwSOtIUUtRwZEQMXjYK+dQSBFbethAk=

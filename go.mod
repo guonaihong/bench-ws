@@ -3,13 +3,13 @@ module github.com/guonaihong/bench-ws
 go 1.20
 
 require (
-	github.com/antlabs/quickws v0.0.8
+	github.com/antlabs/quickws v0.0.9
 	github.com/go-netty/go-netty-ws v0.0.0-20230721104156-2cf8a13b1786
 	github.com/gobwas/ws v1.2.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/guonaihong/clop v0.2.11
 	github.com/lesismal/nbio v1.3.17
-	github.com/lxzan/gws v1.6.1
+	github.com/lxzan/gws v1.6.4
 )
 
 require (

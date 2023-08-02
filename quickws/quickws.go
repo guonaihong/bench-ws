@@ -17,13 +17,15 @@ import (
 )
 
 type Config struct {
-	DisableUtf8 bool `clop:"short;long" usage:"disable utf8"`
+	EnableUtf8 bool `clop:"short;long" usage:"enable utf8"`
 	// 几倍的窗口大小
 	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
 	// 使用bufio的解析方式
 	UseBufio bool `clop:"short;long" usage:"use bufio"`
 	// 打开tcp nodealy
 	OpenDelay bool `clop:"short;long" usage:"tcp delay"`
+	// 关闭bufio clear hack 优化
+	DisableBufioClearHack bool `clop:"long" usage:"disable bufio clear hack"`
 }
 
 var upgrader *quickws.UpgradeServer
@@ -71,7 +73,7 @@ func main() {
 		quickws.WithServerIgnorePong(),
 		quickws.WithServerCallback(&echoHandler{}),
 		// quickws.WithServerReadTimeout(5*time.Second),
-		quickws.WithWindowsMultipleTimesPayloadSize(size),
+		quickws.WithServerWindowsMultipleTimesPayloadSize(size),
 	}
 
 	if cnf.OpenDelay {
@@ -79,11 +81,15 @@ func main() {
 	}
 
 	if cnf.UseBufio {
-		opt = append(opt, quickws.WithBufioParseMode())
+		opt = append(opt, quickws.WithServerBufioParseMode())
 	}
 
-	if cnf.DisableUtf8 {
-		opt = append(opt, quickws.WithServerDisableUTF8Check())
+	if cnf.EnableUtf8 {
+		opt = append(opt, quickws.WithServerEnableUTF8Check())
+	}
+
+	if cnf.DisableBufioClearHack {
+		opt = append(opt, quickws.WithServerDisableBufioClearHack())
 	}
 
 	upgrader = quickws.NewUpgrade(opt...)
