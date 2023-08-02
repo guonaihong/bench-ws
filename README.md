@@ -14,7 +14,7 @@
 # 流量压测
 * 启动服务端的命令
 ```
-/quickws.linux -o -d -u
+/quickws.linux -o -u
 ```
 * 启动客户端的命令
 ```
