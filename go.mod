@@ -3,7 +3,7 @@ module github.com/guonaihong/bench-ws
 go 1.20
 
 require (
-	github.com/antlabs/quickws v0.0.9
+	github.com/antlabs/quickws v0.0.10
 	github.com/go-netty/go-netty-ws v0.0.0-20230721104156-2cf8a13b1786
 	github.com/gobwas/ws v1.2.1
 	github.com/gorilla/websocket v1.5.0
@@ -14,7 +14,7 @@ require (
 
 require (
 	github.com/antlabs/strsim v0.0.2 // indirect
-	github.com/antlabs/wsutil v0.0.11 // indirect
+	github.com/antlabs/wsutil v0.0.12 // indirect
 	github.com/go-netty/go-netty v1.6.3 // indirect
 	github.com/go-netty/go-netty-transport v1.7.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect

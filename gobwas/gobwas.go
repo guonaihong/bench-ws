@@ -13,7 +13,9 @@ import (
 	"github.com/guonaihong/clop"
 )
 
-type Config struct{}
+type Config struct {
+	Addr string `clop:"short;long" usage:"websocket server address" default:":9001"`
+}
 
 func (c *Config) work(conn net.Conn, brw *bufio.ReadWriter) {
 	defer conn.Close()
@@ -52,7 +54,7 @@ func main() {
 	go func() {
 		// log.Println(http.ListenAndServe(":6060", nil))
 	}()
-	rawTCP, err := net.Listen("tcp", ":6001")
+	rawTCP, err := net.Listen("tcp", conf.Addr)
 	if err != nil {
 		fmt.Println("Listen fail:", err)
 		return

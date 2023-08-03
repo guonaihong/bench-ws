@@ -17,6 +17,8 @@ import (
 )
 
 type Config struct {
+	Addr string `clop:"short;long" usage:"websocket server address" default:":9001"`
+
 	EnableUtf8 bool `clop:"short;long" usage:"enable utf8"`
 	// 几倍的窗口大小
 	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
@@ -45,7 +47,7 @@ func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) 
 }
 
 func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
-	fmt.Printf("OnClose:%p, %v\n", c, err)
+	// fmt.Printf("OnClose:%p, %v\n", c, err)
 }
 
 // echo测试服务
@@ -100,7 +102,7 @@ func main() {
 	go func() {
 		// log.Println(http.ListenAndServe(":6060", nil))
 	}()
-	rawTCP, err := net.Listen("tcp", ":9001")
+	rawTCP, err := net.Listen("tcp", cnf.Addr)
 	if err != nil {
 		fmt.Println("Listen fail:", err)
 		return

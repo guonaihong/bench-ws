@@ -11,7 +11,8 @@ import (
 type Handler struct {
 	gws.BuiltinEventHandler
 	// 是否异步写
-	AsyncWrite bool `clop:"short;long" usage:"async write"`
+	AsyncWrite bool   `clop:"short;long" usage:"async write"`
+	Addr       string `clop:"long" usage:"websocket server address" default:":6666""`
 }
 
 func (c *Handler) OnPing(socket *gws.Conn, payload []byte) {
@@ -41,7 +42,7 @@ func main() {
 		socket.ReadLoop()
 	})
 
-	if err := http.ListenAndServe(":6666", nil); err != nil {
+	if err := http.ListenAndServe(h.Addr, nil); err != nil {
 		log.Fatalf("%v", err)
 	}
 }

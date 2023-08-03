@@ -26,7 +26,16 @@ type Client struct {
 	// 协程数
 	Concurrency int `clop:"short;long" usage:"concurrency" default:"1000"`
 
+	// 测试时间
+	Duration time.Duration `clop:"short;long" usage:"duration"`
+
 	OpenCheck bool `clop:"long" usage:"open check"`
+
+	OpenTmpResult bool `clop:"long" usage:"open tmp result"`
+
+	mu sync.Mutex
+
+	result []int
 }
 
 var int64Count int64
@@ -49,10 +58,6 @@ func (e *echoHandler) OnOpen(c *quickws.Conn) {
 }
 
 func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) {
-	if e.curr >= e.total {
-		c.Close()
-		return
-	}
 	// fmt.Println("OnMessage:", c, op, msg)
 	if op == quickws.Text || op == quickws.Binary {
 		c.WriteMessage(op, payload)
@@ -64,14 +69,17 @@ func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) 
 
 		atomic.AddInt64(&int64Count, 1)
 		select {
-		case <-e.data:
+		case _, ok := <-e.data:
+			if !ok {
+				c.Close()
+				return
+			}
 		default:
 		}
 	}
 }
 
 func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
-	fmt.Println("client:OnClose:", err)
 	// close(e.done)
 }
 
@@ -88,22 +96,52 @@ func (client *Client) runTest(currTotal int, data chan struct{}) {
 		return
 	}
 
-	fmt.Println("ReadLoop:", c.ReadLoop())
+	c.ReadLoop()
 }
 
 // 生产者
 func (c *Client) producer(data chan struct{}) {
-	for i := 0; i < len(data); i++ {
-		data <- struct{}{}
+	defer func() {
+		close(data)
+		if c.OpenTmpResult {
+			fmt.Printf("bye bye producer")
+		}
+	}()
+	if c.Duration > 0 {
+		tk := time.NewTicker(c.Duration)
+		for {
+			select {
+			case <-tk.C:
+				// 时间到了
+				// 排空chan
+				for {
+					select {
+					case <-data:
+					default:
+						return
+					}
+				}
+			case data <- struct{}{}:
+			}
+		}
+	} else {
+		for i := 0; i < c.Total; i++ {
+			data <- struct{}{}
+		}
 	}
-	close(data)
 }
 
 // 消费者
 func (c *Client) consumer(data chan struct{}) {
 	var wg sync.WaitGroup
 	wg.Add(c.Concurrency)
-	defer wg.Wait()
+	defer func() {
+		wg.Wait()
+		for i, v := range c.result {
+			fmt.Printf("%ds:%d/s ", i+1, v)
+		}
+		fmt.Printf("\n")
+	}()
 
 	for i := 0; i < c.Concurrency; i++ {
 		go func() {
@@ -120,11 +158,18 @@ func (c *Client) printQps(now time.Time, sec *int) {
 	if n == 0 {
 		n = 1
 	}
-	fmt.Printf("sec: %d, count: %d, qps: %d\n", *sec, count, count/n)
+
+	if c.OpenTmpResult {
+		fmt.Printf("sec: %d, count: %d, qps: %d\n", *sec, count, count/n)
+	}
+
+	c.mu.Lock()
+	c.result = append(c.result, int(count/n))
+	c.mu.Unlock()
 }
 
 func (c *Client) Run(now time.Time) {
-	for sec := 0; ; sec++ {
+	for sec := 1; ; sec++ {
 		time.Sleep(time.Second)
 		c.printQps(now, &sec)
 	}
