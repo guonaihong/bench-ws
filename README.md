@@ -4,7 +4,7 @@
 # tps压测
 * 启动服务端的命令
 ```
-./quickws.linux -d
+./quickws.linux
 ```
 * 启动客户端的命令
 ```
