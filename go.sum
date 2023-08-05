@@ -9,12 +9,12 @@ dmitri.shuralyov.com/state v0.0.0-20180228185332-28bcc343414c/go.mod h1:0PRwlb0D
 git.apache.org/thrift.git v0.0.0-20180902110319-2566ecd5d999/go.mod h1:fPE2ZNJGynbRyZ4dJvy6G277gSllfV2HJqblrnkyeyg=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYUyUczH0OGQWaF5ceTx0UBShxjsH6f8oGKYe2c=
-github.com/antlabs/quickws v0.0.10 h1:ZbA/YUoLEBw/D1b9e4TTxmrUM4foRxSuZyLTJhMHwVQ=
-github.com/antlabs/quickws v0.0.10/go.mod h1:PlbHNLg+bXDFMRaAb+x49gIxblMpcvgcA6E68HQ7/78=
+github.com/antlabs/quickws v0.0.11 h1:ZLAr/btjjz37deEei6LOsRaTAzOmGh6edaFVtVj9HY8=
+github.com/antlabs/quickws v0.0.11/go.mod h1:9Zk9JNVThOavmEBFJeVcer0+YrKpFtNdoA8X+aAtCi8=
 github.com/antlabs/strsim v0.0.2 h1:R4qjokEegYTrw+fkcYj3/UndG9Cn136fH+fpw9TIz9k=
 github.com/antlabs/strsim v0.0.2/go.mod h1:95XAAF2dJK9IiZMc0Ue6H9t477/i6fvYoMoeey8sEnc=
-github.com/antlabs/wsutil v0.0.12 h1:YHn8uuwhxYyy0tgpCWgDHNnKouaEhtQUkrX0QNgoDqc=
-github.com/antlabs/wsutil v0.0.12/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
+github.com/antlabs/wsutil v0.1.0 h1:421b5YluJ/RJ43smPy2pJoP8IfQ1LRcrBwDLuRTy+0w=
+github.com/antlabs/wsutil v0.1.0/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/bradfitz/go-smtpd v0.0.0-20170404230938-deb6d6237625/go.mod h1:HYsPBTaaSFSlLx/70C2HPIMNZpVV8+vt/A+FMnYP11g=
 github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7hK1yFx9hf58LP0zeX7UjIGs20ufpu3evjr+s=

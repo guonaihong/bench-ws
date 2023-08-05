@@ -22,6 +22,8 @@ type Config struct {
 	EnableUtf8 bool `clop:"short;long" usage:"enable utf8"`
 	// 几倍的窗口大小
 	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
+	// 几倍的窗口大小
+	BufioMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
 	// 使用bufio的解析方式
 	UseBufio bool `clop:"short;long" usage:"use bufio"`
 	// 打开tcp nodealy
@@ -65,9 +67,14 @@ func main() {
 	var cnf Config
 	clop.Bind(&cnf)
 
-	size := float32(1.0)
+	windowsSize := float32(1.0)
 	if cnf.WindowsMultipleTimesPayloadSize > 0 {
-		size = float32(cnf.WindowsMultipleTimesPayloadSize)
+		windowsSize = float32(cnf.WindowsMultipleTimesPayloadSize)
+	}
+
+	bufioSize := float32(1.0)
+	if cnf.BufioMultipleTimesPayloadSize > 0 {
+		bufioSize = float32(cnf.BufioMultipleTimesPayloadSize)
 	}
 	opt := []quickws.ServerOption{
 		quickws.WithServerReplyPing(),
@@ -75,7 +82,8 @@ func main() {
 		quickws.WithServerIgnorePong(),
 		quickws.WithServerCallback(&echoHandler{}),
 		// quickws.WithServerReadTimeout(5*time.Second),
-		quickws.WithServerWindowsMultipleTimesPayloadSize(size),
+		quickws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
+		quickws.WithServerBufioMultipleTimesPayloadSize(bufioSize),
 	}
 
 	if cnf.OpenDelay {
