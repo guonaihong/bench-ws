@@ -27,14 +27,20 @@ type Config struct {
 	// 使用bufio的解析方式
 	UseBufio bool `clop:"short;long" usage:"use bufio"`
 	// 打开tcp nodealy
-	OpenDelay bool `clop:"short;long" usage:"tcp delay"`
+	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 	// 关闭bufio clear hack 优化
 	DisableBufioClearHack bool `clop:"long" usage:"disable bufio clear hack"`
+	// 使用延迟发送接口
+	UseDelayWrite bool `clop:"long" usage:"use delay write"`
+	// 设置延迟发送接口的初始缓冲区大小
+	DelayWriteInitBufferSize int `clop:"long" usage:"delay write init buffer size" default:"4096"`
 }
 
 var upgrader *quickws.UpgradeServer
 
-type echoHandler struct{}
+type echoHandler struct {
+	*Config
+}
 
 func (e *echoHandler) OnOpen(c *quickws.Conn) {
 	// fmt.Printf("OnOpen: %p\n", c)
@@ -45,6 +51,13 @@ func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) 
 	// if err := c.WriteTimeout(op, msg, 3*time.Second); err != nil {
 	// 	fmt.Println("write fail:", err)
 	// }
+	if e.UseDelayWrite {
+		if err := c.WriteMessageDelay(op, msg); err != nil {
+			// fmt.Printf("error: %v\n", err)
+		}
+		return
+	}
+
 	c.WriteMessage(op, msg)
 }
 
@@ -76,17 +89,23 @@ func main() {
 	if cnf.BufioMultipleTimesPayloadSize > 0 {
 		bufioSize = float32(cnf.BufioMultipleTimesPayloadSize)
 	}
+
+	delayBufSize := 0
+	if cnf.UseDelayWrite {
+		delayBufSize = cnf.DelayWriteInitBufferSize
+	}
 	opt := []quickws.ServerOption{
 		quickws.WithServerReplyPing(),
 		// quickws.WithServerDecompression(),
 		quickws.WithServerIgnorePong(),
-		quickws.WithServerCallback(&echoHandler{}),
+		quickws.WithServerCallback(&echoHandler{Config: &cnf}),
 		// quickws.WithServerReadTimeout(5*time.Second),
 		quickws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
 		quickws.WithServerBufioMultipleTimesPayloadSize(bufioSize),
+		quickws.WithServerDelayWriteInitBufferSize(int32(delayBufSize)),
 	}
 
-	if cnf.OpenDelay {
+	if cnf.OpenTcpDelay {
 		opt = append(opt, quickws.WithServerTCPDelay())
 	}
 

@@ -7,7 +7,7 @@ killall quickws.linux &>/dev/null
 ./quickws.linux --addr ":9000" &
 PID=$!
 sleep 1
-./test-client.linux -c 10000 -w "ws://127.0.0.1:9000/ws" -c 10000 -d $SEC
+./test-client.linux -c 10000 -w "ws://127.0.0.1:9000/" -c 10000 -d $SEC
 kill $PID
 # 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
