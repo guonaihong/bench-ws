@@ -75,3 +75,21 @@ sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9006/ws" -c 10000 -d $SEC
 kill $PID
 sleep $SLEEP_SEC
+
+echo "nbio-nonblocking:"
+killall gobwas &>/dev/null
+./nbio-nonblocking.linux --addr ":9007" &
+PID=$!
+sleep 1
+./test-client.linux -c 10000 -w "ws://127.0.0.1:9007/ws" -c 10000 -d $SEC
+kill $PID
+sleep $SLEEP_SEC
+
+echo "nbio:"
+killall gobwas &>/dev/null
+./nbio-std.linux --addr ":9008" &
+PID=$!
+sleep 1
+./test-client.linux -c 10000 -w "ws://127.0.0.1:9008/ws" -c 10000 -d $SEC
+kill $PID
+sleep $SLEEP_SEC
