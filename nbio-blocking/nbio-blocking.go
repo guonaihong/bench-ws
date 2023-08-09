@@ -1,0 +1,56 @@
+package main
+
+import (
+	"log"
+	"net"
+	"net/http"
+	"time"
+
+	"github.com/guonaihong/clop"
+	"github.com/lesismal/nbio/mempool"
+	"github.com/lesismal/nbio/nbhttp"
+	"github.com/lesismal/nbio/nbhttp/websocket"
+)
+
+var upgrader = websocket.NewUpgrader()
+
+type Config struct {
+	ReadBufferSize int `clop:"short;long" usage:"read buffer size" default:"1024"`
+
+	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
+}
+
+func main() {
+	var conf Config
+	clop.Bind(&conf)
+	mempool.DefaultMemPool = mempool.New(1024+1024, 1024*1024*1024)
+
+	upgrader.BlockingModAsyncWrite = false
+
+	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
+		c.WriteMessage(messageType, data)
+	})
+
+	mux := &http.ServeMux{}
+	mux.HandleFunc("/ws", onWebsocket)
+
+	engine := nbhttp.NewEngine(nbhttp.Config{
+		Network: "tcp",
+		Addrs:   []string{conf.Addr},
+		Handler: mux,
+		// IOMod:                   nbhttp.IOModBlocking,
+		IOMod:                   nbhttp.IOModBlocking,
+		ReleaseWebsocketPayload: true,
+		Listen:                  net.Listen,
+	})
+	engine.Start()
+}
+
+func onWebsocket(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("upgrade failed: %v", err)
+		return
+	}
+	c.SetReadDeadline(time.Time{})
+}

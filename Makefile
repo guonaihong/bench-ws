@@ -8,6 +8,11 @@ all:
 	GOOS=darwin	GOARCH=arm64 go build -o nettyws.mac ./nettyws/nettyws.go
 	GOOS=darwin	GOARCH=arm64 go build -o nbio-std.mac ./nbio-std/nbio-std.go
 	GOOS=darwin	GOARCH=arm64 go build -o nbio-nonblocking.mac ./nbio-nonblocking/nbio-nonblocking.go
+	GOOS=darwin	GOARCH=arm64 go build -o nbio-blocking.mac ./nbio-blocking/nbio-blocking.go
+	GOOS=darwin	GOARCH=arm64 go build -o nbio-mixed.mac ./nbio-mixed/nbio-mixed.go
+	GOOS=darwin	GOARCH=arm64 go build -o hertz-std.mac ./hertz-std/hertz-std.go
+	GOOS=darwin	GOARCH=arm64 go build -o hertz.mac ./hertz/hertz.go
+	GOOS=darwin GOARCH=arm64 go build -o fasthttp-ws-std.linux ./fasthttp-ws-std/fasthttp-ws-std.go
 	GOOS=darwin	GOARCH=arm64 go build -o test-client.mac ./client/client.go
 
 	# 编译linux
@@ -19,6 +24,11 @@ all:
 	GOOS=linux GOARCH=amd64 go build -o nettyws.linux ./nettyws/nettyws.go
 	GOOS=linux GOARCH=amd64 go build -o nbio-std.linux ./nbio-std/nbio-std.go
 	GOOS=linux GOARCH=amd64 go build -o nbio-nonblocking.linux ./nbio-nonblocking/nbio-nonblocking.go
+	GOOS=linux GOARCH=amd64 go build -o nbio-blocking.linux ./nbio-blocking/nbio-blocking.go
+	GOOS=linux GOARCH=amd64 go build -o nbio-mixed.linux ./nbio-mixed/nbio-mixed.go
+	GOOS=linux GOARCH=amd64 go build -o hertz-std.linux ./hertz-std/hertz-std.go
+	GOOS=linux GOARCH=amd64 go build -o hertz.linux ./hertz/hertz.go
+	GOOS=linux GOARCH=amd64 go build -o fasthttp-ws-std.linux ./fasthttp-ws-std/fasthttp-ws-std.go
 	GOOS=linux GOARCH=amd64 go build -o test-client.linux ./client/client.go
 
 clean:
