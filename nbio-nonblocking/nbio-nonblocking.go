@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/guonaihong/clop"
@@ -33,18 +36,28 @@ func main() {
 	// upgrader.BlockingModAsyncWrite = false
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/ws", onWebsocket)
+	mux.HandleFunc("/", onWebsocket)
 
 	engine := nbhttp.NewEngine(nbhttp.Config{
-		Network: "tcp",
-		Addrs:   []string{conf.Addr},
-		Handler: mux,
-		// IOMod:                   nbhttp.IOModBlocking,
+		Network:                 "tcp",
+		Addrs:                   []string{conf.Addr},
+		Handler:                 mux,
 		IOMod:                   nbhttp.IOModNonBlocking,
 		ReleaseWebsocketPayload: true,
 		Listen:                  net.Listen,
 	})
-	engine.Start()
+
+	err := engine.Start()
+	if err != nil {
+		log.Fatalf("nbio.Start failed: %v", err)
+	}
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	engine.Shutdown(ctx)
 }
 
 func onWebsocket(w http.ResponseWriter, r *http.Request) {

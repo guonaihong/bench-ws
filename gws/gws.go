@@ -14,13 +14,14 @@ func main() {
 		// CompressEnabled:  true,
 		CheckUtf8Enabled: false,
 	})
-	log.Fatalf("%v", app.Run(":8001"))
+	log.Fatalf("%v", app.Run(h.Addr))
 }
 
 type Handler struct {
 	gws.BuiltinEventHandler
 	// 是否异步写
-	AsyncWrite bool `clop:"short;long" usage:"async write"`
+	AsyncWrite bool   `clop:"short;long" usage:"async write"`
+	Addr       string `clop:"long" usage:"websocket server address" default:":6666""`
 }
 
 func (c *Handler) OnPing(socket *gws.Conn, payload []byte) {

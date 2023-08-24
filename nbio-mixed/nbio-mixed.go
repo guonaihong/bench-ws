@@ -4,6 +4,8 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/guonaihong/clop"
@@ -34,7 +36,7 @@ func main() {
 	})
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/ws", onWebsocket)
+	mux.HandleFunc("/", onWebsocket)
 
 	engine := nbhttp.NewEngine(nbhttp.Config{
 		Network: "tcp",
@@ -46,6 +48,10 @@ func main() {
 		Listen:                  net.Listen,
 	})
 	engine.Start()
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	engine.Stop()
 }
 
 func onWebsocket(w http.ResponseWriter, r *http.Request) {

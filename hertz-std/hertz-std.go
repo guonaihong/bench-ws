@@ -34,6 +34,7 @@ func main() {
 	srv := server.New(server.WithHostPorts(conf.Addr),
 		server.WithTransport(standard.NewTransporter))
 	go func() {
+		srv.GET("/", conf.onWebsocket)
 		srv.Spin()
 	}()
 

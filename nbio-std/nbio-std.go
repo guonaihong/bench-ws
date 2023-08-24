@@ -26,7 +26,7 @@ func main() {
 	upgrader.BlockingModAsyncWrite = false
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/ws", onWebsocket)
+	mux.HandleFunc("/", onWebsocket)
 
 	rawTCP, err := net.Listen("tcp", conf.Addr)
 	if err != nil {
