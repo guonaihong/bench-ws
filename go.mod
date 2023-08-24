@@ -8,7 +8,7 @@ require (
 	github.com/cloudwego/hertz v0.6.7
 	github.com/fasthttp/websocket v1.5.4
 	github.com/go-netty/go-netty-ws v0.0.0-20230721104156-2cf8a13b1786
-	github.com/gobwas/ws v1.2.1
+	github.com/gobwas/ws v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/guonaihong/clop v0.2.11
 	github.com/hertz-contrib/websocket v0.0.1
