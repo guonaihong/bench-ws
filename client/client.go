@@ -152,7 +152,7 @@ func (c *Client) consumer(data chan struct{}) {
 	}
 }
 
-func (c *Client) printQps(now time.Time, sec *int) {
+func (c *Client) printTps(now time.Time, sec *int) {
 	count := atomic.LoadInt64(&int64Count)
 	n := int64(time.Since(now).Seconds())
 	if n == 0 {
@@ -160,7 +160,7 @@ func (c *Client) printQps(now time.Time, sec *int) {
 	}
 
 	if c.OpenTmpResult {
-		fmt.Printf("sec: %d, count: %d, qps: %d\n", *sec, count, count/n)
+		fmt.Printf("sec: %d, count: %d, tps: %d\n", *sec, count, count/n)
 	}
 
 	c.mu.Lock()
@@ -171,7 +171,7 @@ func (c *Client) printQps(now time.Time, sec *int) {
 func (c *Client) Run(now time.Time) {
 	for sec := 1; ; sec++ {
 		time.Sleep(time.Second)
-		c.printQps(now, &sec)
+		c.printTps(now, &sec)
 	}
 }
 
