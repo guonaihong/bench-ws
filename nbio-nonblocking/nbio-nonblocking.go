@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/guonaihong/clop"
+	"github.com/lesismal/nbio/logging"
 	"github.com/lesismal/nbio/mempool"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -30,6 +31,7 @@ func main() {
 	clop.Bind(&conf)
 	mempool.DefaultMemPool = mempool.New(1024+1024, 1024*1024*1024)
 
+	logging.SetLevel(logging.LevelError)
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		c.WriteMessage(messageType, data)
 	})

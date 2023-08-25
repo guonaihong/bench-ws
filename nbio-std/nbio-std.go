@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/guonaihong/clop"
+	"github.com/lesismal/nbio/logging"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 )
 
@@ -20,6 +21,7 @@ type Config struct {
 func main() {
 	var conf Config
 	clop.Bind(&conf)
+	logging.SetLevel(logging.LevelError)
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		c.WriteMessage(messageType, data)
 	})
