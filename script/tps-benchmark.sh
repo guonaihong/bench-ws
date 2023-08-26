@@ -11,7 +11,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9000/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 echo "quickws.1:"
@@ -21,7 +21,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9000/ws" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 echo "gws.2:"
@@ -85,7 +85,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9007/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 
@@ -96,7 +96,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9008/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 
@@ -107,7 +107,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9009/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 echo "nbio-mixed.10:"
@@ -117,7 +117,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9010/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 echo "hertz.11:"
@@ -127,7 +127,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9011/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 echo "hertz-std.12:"
@@ -137,7 +137,7 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9012/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
 
@@ -148,6 +148,6 @@ PID=$!
 sleep 1
 ./test-client.linux -c 10000 -w "ws://127.0.0.1:9013/" -c 10000 -d $SEC
 kill $PID
-# 让cpu 温度降些，防止过热，影响后观框架的测试, 散热好的, sleep时间可以改短些
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
 sleep $SLEEP_SEC
 
