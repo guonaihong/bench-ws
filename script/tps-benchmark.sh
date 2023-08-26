@@ -79,7 +79,7 @@ kill $PID
 sleep $SLEEP_SEC
 
 echo "nbio-std.7:"
-killall quickws.linux &>/dev/null
+killall nbio-std.linux &>/dev/null
 ./nbio-std.linux --addr ":9007" &
 PID=$!
 sleep 1
@@ -111,7 +111,7 @@ kill $PID
 sleep $SLEEP_SEC
 
 echo "nbio-mixed.10:"
-killall quickws.linux &>/dev/null
+killall nbio-mixed.linux &>/dev/null
 ./nbio-mixed.linux --addr ":9010" &
 PID=$!
 sleep 1
