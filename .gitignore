@@ -20,10 +20,5 @@
 # Go workspace file
 go.work
 
-/test-client
-/test-client-linux
-/autobahn-quickws-linux
-/autobahn-quickws
-/gws-async-write-server
 /*.linux
 /*.mac
