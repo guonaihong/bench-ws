@@ -10,6 +10,7 @@ import (
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/guonaihong/clop"
 	"github.com/hertz-contrib/websocket"
 )
@@ -28,6 +29,7 @@ func main() {
 	var conf Config
 	clop.Bind(&conf)
 
+	hlog.SetLevel(hlog.LevelFatal)
 	gopool.SetCap(1000000)
 
 	srv := server.New(server.WithHostPorts(conf.Addr))
