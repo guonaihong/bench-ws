@@ -22,6 +22,14 @@ type Handler struct {
 	// 是否异步写
 	AsyncWrite bool   `clop:"short;long" usage:"async write"`
 	Addr       string `clop:"long" usage:"websocket server address" default:":6666""`
+	// 打开tcp nodealy
+	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
+}
+
+func (c *Handler) OnOpen(socket *gws.Conn) {
+	if c.OpenTcpDelay {
+		socket.SetNoDelay(!c.OpenTcpDelay)
+	}
 }
 
 func (c *Handler) OnPing(socket *gws.Conn, payload []byte) {

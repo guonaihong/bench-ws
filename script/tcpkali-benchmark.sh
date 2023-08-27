@@ -2,6 +2,69 @@
 SEC="30s"
 SLEEP_SEC="40"
 
+run_gws_test() {
+    echo "gws:"
+    killall gws-std.linux &>/dev/null
+    ./gws-std.linux --addr ":9001" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+    
+    echo "gws.asyncwrite:"
+    killall gws-std.linux &>/dev/null
+    ./gws-std.linux -a --addr ":9001" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+    
+    echo "gws-std:"
+    killall gws-std.linux &>/dev/null
+    ./gws-std.linux --addr ":9002" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+    
+    echo "gws.tcp-delay:"
+    killall gws-std.linux &>/dev/null
+    ./gws.linux -o  --addr ":9002" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+    
+    echo "gws-std.tcp-delay:"
+    killall gws-std.linux &>/dev/null
+    ./gws-std.linux -o  --addr ":9002" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+    
+    echo "gws-std.asyncwrite:"
+    killall gws-std.linux &>/dev/null
+    ./gws-std.linux -a --addr ":9002" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+
+}
+
 run_quickws_windows_delay_and_tcp_delay_test() {
     killall quickws.linux &>/dev/null
     ./quickws.linux -o -w $1 --use-delay-write -a ":9000" --delay-write-init-buffer-size 11264 &
@@ -61,6 +124,9 @@ run_quickws_bufio_tcp_delay_test() {
     killall quickws.linux &>/dev/null
     echo ""
 }
+
+run_gws_test
+
 echo "quickws.windows.delay.and.tcp.delay.test.32x:"
 run_quickws_windows_delay_and_tcp_delay_test 32
 echo "quickws.windows.delay.and.tcp.delay.test.24x:"
@@ -127,46 +193,6 @@ run_quickws_bufio_tcp_delay_test 4
 echo "quickws.bufio.tcpdelay.1x:"
 run_quickws_bufio_tcp_delay_test 1
 
-
-echo "gws:"
-killall gws-std.linux &>/dev/null
-./gws-std.linux --addr ":9001" &
-PID=$!
-sleep 1
-tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
-kill $PID
-sleep $SLEEP_SEC
-echo ""
-
-echo "gws.asyncwrite:"
-killall gws-std.linux &>/dev/null
-./gws-std.linux -a --addr ":9001" &
-PID=$!
-sleep 1
-tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
-kill $PID
-sleep $SLEEP_SEC
-echo ""
-
-echo "gws-std:"
-killall gws-std.linux &>/dev/null
-./gws-std.linux --addr ":9002" &
-PID=$!
-sleep 1
-tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
-kill $PID
-sleep $SLEEP_SEC
-echo ""
-
-echo "gws-std.asyncwrite:"
-killall gws-std.linux &>/dev/null
-./gws-std.linux -a --addr ":9002" &
-PID=$!
-sleep 1
-tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
-kill $PID
-sleep $SLEEP_SEC
-echo ""
 
 echo "gorilla-linux-ReadMessage:"
 killall gorilla.linux  &>/dev/null
