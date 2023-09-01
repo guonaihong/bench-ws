@@ -3,7 +3,7 @@ module github.com/guonaihong/bench-ws
 go 1.20
 
 require (
-	github.com/antlabs/quickws v0.1.2
+	github.com/antlabs/quickws v0.1.4
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/cloudwego/hertz v0.6.7
 	github.com/fasthttp/websocket v1.5.4
