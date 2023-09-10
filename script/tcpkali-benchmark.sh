@@ -125,6 +125,50 @@ run_quickws_bufio_tcp_delay_test() {
     echo ""
 }
 
+run_gorilla_test() {
+    echo "gorilla-linux-ReadMessage:"
+    killall gorilla.linux  &>/dev/null
+    ./gorilla.linux --addr ":9003" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9003/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+    
+    echo "gorilla-linux-UseReader:"
+    killall gorilla.linux &>/dev/null
+    ./gorilla.linux --addr ":9004" -u &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9004/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+
+    echo "gorilla-linux-ReadMessage.tcp.delay:"
+    killall gorilla.linux  &>/dev/null
+    ./gorilla.linux -o --addr ":9003" &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9003/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+
+    echo "gorilla-linux-UseReader.tcp.delay:"
+    killall gorilla.linux &>/dev/null
+    ./gorilla.linux -o --addr ":9004" -u &
+    PID=$!
+    sleep 1
+    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9004/
+    kill $PID
+    sleep $SLEEP_SEC
+    echo ""
+}
+
+run_gorilla_test
+
 run_gws_test
 
 echo "quickws.windows.delay.and.tcp.delay.test.32x:"
@@ -193,26 +237,6 @@ run_quickws_bufio_tcp_delay_test 4
 echo "quickws.bufio.tcpdelay.1x:"
 run_quickws_bufio_tcp_delay_test 1
 
-
-echo "gorilla-linux-ReadMessage:"
-killall gorilla.linux  &>/dev/null
-./gorilla.linux --addr ":9003" &
-PID=$!
-sleep 1
-tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9003/
-kill $PID
-sleep $SLEEP_SEC
-echo ""
-
-echo "gorilla-linux-UseReader:"
-killall gorilla.linux &>/dev/null
-./gorilla.linux --addr ":9004" -u &
-PID=$!
-sleep 1
-tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9004/
-kill $PID
-sleep $SLEEP_SEC
-echo ""
 
 echo "nettyws:"
 killall nettyws.linux &>/dev/null

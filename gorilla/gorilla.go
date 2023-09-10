@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"log"
@@ -18,9 +19,22 @@ type Config struct {
 	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
 
 	Addr string `clop:"short;long" usage:"websocket server address" default:":5555"`
+	// 打开tcp nodealy
+	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 }
 
 var upgrader = websocket.Upgrader{}
+
+func setNoDelay(c net.Conn, noDelay bool) error {
+	if tcp, ok := c.(*net.TCPConn); ok {
+		return tcp.SetNoDelay(noDelay)
+	}
+
+	if tlsTCP, ok := c.(*tls.Conn); ok {
+		return setNoDelay(tlsTCP.NetConn(), noDelay)
+	}
+	return nil
+}
 
 func (c *Config) work(conn *websocket.Conn) {
 	defer conn.Close()
@@ -75,6 +89,7 @@ func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
 	}
 	conn.SetReadDeadline(time.Time{})
 
+	setNoDelay(conn.UnderlyingConn(), !c.OpenTcpDelay)
 	go c.work(conn)
 }
 
