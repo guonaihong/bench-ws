@@ -33,6 +33,8 @@ type Client struct {
 
 	OpenTmpResult bool `clop:"long" usage:"open tmp result"`
 
+	Text string `clop:"long" usage:"send text"`
+
 	mu sync.Mutex
 
 	result []int
@@ -182,7 +184,11 @@ func main() {
 		// log.Println(http.ListenAndServe(":6060", nil))
 	}()
 	clop.MustBind(&c)
-	payload = bytes.Repeat([]byte("𠜎"), c.PayloadSize/len("𠜎"))
+	if len(c.Text) > 0 {
+		payload = []byte(c.Text)
+	} else {
+		payload = bytes.Repeat([]byte("𠜎"), c.PayloadSize/len("𠜎"))
+	}
 	data := make(chan struct{}, c.Total)
 
 	now := time.Now()
