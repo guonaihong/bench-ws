@@ -1,8 +1,11 @@
 module github.com/guonaihong/bench-ws
 
-go 1.20
+go 1.21
+
+toolchain go1.21.0
 
 require (
+	github.com/antlabs/greatws v0.0.8
 	github.com/antlabs/quickws v0.1.7
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/cloudwego/hertz v0.6.7
@@ -19,7 +22,7 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/antlabs/strsim v0.0.2 // indirect
-	github.com/antlabs/wsutil v0.1.2 // indirect
+	github.com/antlabs/wsutil v0.1.5 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/sonic v1.8.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
@@ -40,6 +43,7 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lesismal/llib v1.1.12 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
+	github.com/pawelgaczynski/giouring v0.0.0-20230826085535-69588b89acb9 // indirect
 	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	github.com/tidwall/gjson v1.13.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
@@ -49,7 +53,7 @@ require (
 	github.com/valyala/fasthttp v1.48.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )

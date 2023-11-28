@@ -4,6 +4,16 @@
 SEC="18s"
 SLEEP_SEC="40"
 
+echo "greatws.1:"
+killall greatws.linux &>/dev/null
+./greatws.linux --addr ":8999" &
+PID=$!
+sleep 1
+./test-client.linux -c 10000 -w "ws://127.0.0.1:8999/ws" -c 10000 -d $SEC
+kill $PID
+# 让cpu 温度降些，防止过热，影响后面框架的测试, 散热好的, sleep时间可以改短些
+sleep $SLEEP_SEC
+
 echo "quickws.0:忽略第一个的成绩"
 killall quickws.linux &>/dev/null
 ./quickws.linux --addr ":9000" &
