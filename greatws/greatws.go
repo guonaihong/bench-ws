@@ -105,7 +105,14 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			fmt.Printf("curConn:%d, curTask:%d\n", h.m.GetCurConnNum(), h.m.GetCurTaskNum())
+			fmt.Printf("curConn:%d, curTask:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d\n",
+				h.m.GetCurConnNum(),
+				h.m.GetCurTaskNum(),
+				h.m.GetReadSyscallNum(),
+				h.m.GetWriteSyscallNum(),
+				h.m.GetReallocNum(),
+				h.m.GetMoveBytesNum(),
+			)
 		}
 	}()
 
