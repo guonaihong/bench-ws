@@ -81,6 +81,10 @@ func main() {
 		log.Println(http.ListenAndServe(":6060", nil))
 	}()
 
+	windowsSize := float32(1.0)
+	if cnf.WindowsMultipleTimesPayloadSize > 0 {
+		windowsSize = float32(cnf.WindowsMultipleTimesPayloadSize)
+	}
 	// debug io-uring
 	// h.m = greatws.NewMultiEventLoopMust(greatws.WithEventLoops(0), greatws.WithMaxEventNum(1000), greatws.WithIoUring(), greatws.WithLogLevel(slog.LevelDebug))
 	h.m = greatws.NewMultiEventLoopMust(
@@ -98,6 +102,8 @@ func main() {
 		greatws.WithServerEnableUTF8Check(),
 		greatws.WithServerReadTimeout(5*time.Second),
 		greatws.WithServerMultiEventLoop(h.m),
+
+		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
 	)
 
 	fmt.Printf("apiname:%s\n", h.m.GetApiName())
@@ -105,13 +111,15 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			fmt.Printf("curConn:%d, curTask:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d\n",
+			fmt.Printf("curConn:%d, curTask:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d, readEv:%d writeEv:%d\n",
 				h.m.GetCurConnNum(),
 				h.m.GetCurTaskNum(),
 				h.m.GetReadSyscallNum(),
 				h.m.GetWriteSyscallNum(),
 				h.m.GetReallocNum(),
 				h.m.GetMoveBytesNum(),
+				h.m.GetReadEvNum(),
+				h.m.GetWriteEvNum(),
 			)
 		}
 	}()

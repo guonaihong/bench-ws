@@ -94,6 +94,7 @@ func main() {
 	if cnf.UseDelayWrite {
 		delayBufSize = cnf.DelayWriteInitBufferSize
 	}
+
 	opt := []quickws.ServerOption{
 		quickws.WithServerReplyPing(),
 		// quickws.WithServerDecompression(),
