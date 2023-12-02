@@ -96,10 +96,10 @@ func main() {
 
 	upgrader = greatws.NewUpgrade(
 		greatws.WithServerReplyPing(),
-		greatws.WithServerDecompression(),
+		// greatws.WithServerDecompression(),
 		greatws.WithServerIgnorePong(),
 		greatws.WithServerCallback(&echoHandler{}),
-		greatws.WithServerEnableUTF8Check(),
+		// greatws.WithServerEnableUTF8Check(),
 		greatws.WithServerReadTimeout(5*time.Second),
 		greatws.WithServerMultiEventLoop(h.m),
 
