@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"time"
 
 	"github.com/guonaihong/clop"
-	"github.com/lesismal/nbio/logging"
+	// "github.com/lesismal/nbio/logging"
 	"github.com/lesismal/nbio/mempool"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -20,7 +21,7 @@ var upgrader = websocket.NewUpgrader()
 
 type Config struct {
 	// 打开性能优化开关
-	UseReader      bool `clop:"short;long" usage:"use reader"`
+	UseStdMalloc   bool `clop:"short;long" usage:"use reader"`
 	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
 
 	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
@@ -29,9 +30,17 @@ type Config struct {
 func main() {
 	var conf Config
 	clop.Bind(&conf)
-	mempool.DefaultMemPool = mempool.New(1024+1024, 1024*1024*1024)
 
-	logging.SetLevel(logging.LevelError)
+	// 内存限制得越低效率越低、压测的带宽越低
+	debug.SetMemoryLimit(1024 * 1024 * 512)
+	if conf.UseStdMalloc {
+		// tcpkali这种场景，nbio用标准库比mempool内存占用低
+		mempool.DefaultMemPool = &allocator{} // mempool.New(1024+1024, 1024*1024*1024)
+	} else {
+		mempool.DefaultMemPool = mempool.New(1024+1024, 1024*1024*1024)
+	}
+
+	// logging.SetLevel(logging.LevelError)
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		c.WriteMessage(messageType, data)
 	})
@@ -47,6 +56,7 @@ func main() {
 		IOMod:                   nbhttp.IOModNonBlocking,
 		ReleaseWebsocketPayload: true,
 		Listen:                  net.Listen,
+		ReadBufferSize:          4096,
 	})
 
 	err := engine.Start()
@@ -69,4 +79,28 @@ func onWebsocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.SetReadDeadline(time.Time{})
+}
+
+type allocator struct{}
+
+func (a *allocator) Malloc(size int) []byte {
+	return make([]byte, size)
+}
+
+func (a *allocator) Realloc(buf []byte, size int) []byte {
+	if size <= cap(buf) {
+		return buf[:size]
+	}
+	return append(buf, make([]byte, size-cap(buf))...)
+}
+
+func (a *allocator) Append(buf []byte, more ...byte) []byte {
+	return append(buf, more...)
+}
+
+func (a *allocator) AppendString(buf []byte, more string) []byte {
+	return append(buf, more...)
+}
+
+func (a *allocator) Free(buf []byte) {
 }
