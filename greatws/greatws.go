@@ -17,7 +17,8 @@ import (
 )
 
 type Config struct {
-	Addr string `clop:"short;long" usage:"websocket server address" default:":9001"`
+	RunInEventLoop bool   `clop:"short;long" usage:"run in event loop"`
+	Addr           string `clop:"short;long" usage:"websocket server address" default:":9001"`
 
 	EnableUtf8 bool `clop:"short;long" usage:"enable utf8"`
 	// 几倍的窗口大小
@@ -94,17 +95,22 @@ func main() {
 		greatws.WithLogLevel(slog.LevelError)) // epoll, kqueue
 	h.m.Start()
 
-	upgrader = greatws.NewUpgrade(
+	opts := []greatws.ServerOption{
 		greatws.WithServerReplyPing(),
 		// greatws.WithServerDecompression(),
 		greatws.WithServerIgnorePong(),
 		greatws.WithServerCallback(&echoHandler{}),
 		// greatws.WithServerEnableUTF8Check(),
-		greatws.WithServerReadTimeout(5*time.Second),
+		greatws.WithServerReadTimeout(5 * time.Second),
 		greatws.WithServerMultiEventLoop(h.m),
 
 		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
-	)
+	}
+
+	if cnf.RunInEventLoop {
+		opts = append(opts, greatws.WithServerCallbackInEventLoop())
+	}
+	upgrader = greatws.NewUpgrade(opts...)
 
 	fmt.Printf("apiname:%s\n", h.m.GetApiName())
 
