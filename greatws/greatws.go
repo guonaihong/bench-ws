@@ -25,6 +25,10 @@ type Config struct {
 	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
 	// 打开tcp nodealy
 	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
+	// 使用stream模式
+	StreamMode bool `clop:"short;long" usage:"use stream"`
+	// 使用go程绑定模式
+	GoRoutineBindMode bool `clop:"short;long" usage:"use go routine bind"`
 }
 
 var upgrader *greatws.UpgradeServer
@@ -89,7 +93,7 @@ func main() {
 	// debug io-uring
 	// h.m = greatws.NewMultiEventLoopMust(greatws.WithEventLoops(0), greatws.WithMaxEventNum(1000), greatws.WithIoUring(), greatws.WithLogLevel(slog.LevelDebug))
 	h.m = greatws.NewMultiEventLoopMust(
-		greatws.WithEventLoops(runtime.NumCPU()*2),
+		greatws.WithEventLoops(runtime.NumCPU()),
 		greatws.WithBusinessGoNum(80, 10, 10000),
 		greatws.WithMaxEventNum(1000),
 		greatws.WithLogLevel(slog.LevelError)) // epoll, kqueue
@@ -107,9 +111,14 @@ func main() {
 		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
 	}
 
-	if cnf.RunInEventLoop {
+	switch {
+	case cnf.RunInEventLoop:
 		opts = append(opts, greatws.WithServerCallbackInEventLoop())
+	case cnf.GoRoutineBindMode:
+	case cnf.StreamMode:
+		opts = append(opts, greatws.WithServerStreamMode())
 	}
+
 	upgrader = greatws.NewUpgrade(opts...)
 
 	fmt.Printf("apiname:%s\n", h.m.GetApiName())
