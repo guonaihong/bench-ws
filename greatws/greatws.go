@@ -19,16 +19,17 @@ import (
 type Config struct {
 	RunInEventLoop bool   `clop:"short;long" usage:"run in event loop"`
 	Addr           string `clop:"short;long" usage:"websocket server address" default:":9001"`
-
-	EnableUtf8 bool `clop:"short;long" usage:"enable utf8"`
+	EnableUtf8     bool   `clop:"short;long" usage:"enable utf8"`
 	// 几倍的窗口大小
 	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
 	// 打开tcp nodealy
 	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 	// 使用stream模式
 	StreamMode bool `clop:"short;long" usage:"use stream"`
-	// 使用go程绑定模式
+	// 使用go程绑定模式, greatws默认模式
 	GoRoutineBindMode bool `clop:"short;long" usage:"use go routine bind"`
+	// 开启对流量压测友好的模式
+	TrafficMode bool `clop:"short;long" usage:"enable pressure mode"`
 }
 
 var upgrader *greatws.UpgradeServer
@@ -90,13 +91,19 @@ func main() {
 	if cnf.WindowsMultipleTimesPayloadSize > 0 {
 		windowsSize = float32(cnf.WindowsMultipleTimesPayloadSize)
 	}
-	// debug io-uring
-	// h.m = greatws.NewMultiEventLoopMust(greatws.WithEventLoops(0), greatws.WithMaxEventNum(1000), greatws.WithIoUring(), greatws.WithLogLevel(slog.LevelDebug))
-	h.m = greatws.NewMultiEventLoopMust(
+
+	evOpts := []greatws.EvOption{
 		greatws.WithEventLoops(runtime.NumCPU()),
 		greatws.WithBusinessGoNum(80, 10, 10000),
 		greatws.WithMaxEventNum(1000),
-		greatws.WithLogLevel(slog.LevelError)) // epoll, kqueue
+		greatws.WithLogLevel(slog.LevelError),
+	}
+	if cnf.TrafficMode {
+		evOpts = append(evOpts, greatws.WithBusinessGoTrafficMode())
+	}
+
+	h.m = greatws.NewMultiEventLoopMust(evOpts...) // epoll, kqueue
+
 	h.m.Start()
 
 	opts := []greatws.ServerOption{
@@ -126,9 +133,12 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			fmt.Printf("curConn:%d, curTask:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d, readEv:%d writeEv:%d\n",
+			fmt.Printf("curConn:%d, curGoNum:%d, curGlobalGoNum:%d,curTask:%d, curGlobalTaskNum:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d, readEv:%d writeEv:%d\n",
 				h.m.GetCurConnNum(),
+				h.m.GetCurGoNum(),
+				h.m.GetGlobalCurGoNum(),
 				h.m.GetCurTaskNum(),
+				h.m.GetGlobalTaskNum(),
 				h.m.GetReadSyscallNum(),
 				h.m.GetWriteSyscallNum(),
 				h.m.GetReallocNum(),
