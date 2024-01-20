@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"runtime"
+	"sync/atomic"
 	"time"
 
 	_ "net/http/pprof"
@@ -47,13 +48,21 @@ func (e *echoHandler) OnOpen(c *greatws.Conn) {
 	// fmt.Printf("OnOpen: %p\n", c)
 }
 
+var (
+	total   uint64
+	success uint64
+)
+
 func (e *echoHandler) OnMessage(c *greatws.Conn, op greatws.Opcode, msg []byte) {
 	// fmt.Printf("OnMessage: %s, len(%d), op:%d\n", msg, len(msg), op)
 	// if err := c.WriteTimeout(op, msg, 3*time.Second); err != nil {
 	// 	fmt.Println("write fail:", err)
 	// }
+	atomic.AddUint64(&total, 1)
 	if err := c.WriteMessage(op, msg); err != nil {
 		slog.Error("write fail:", err)
+	} else {
+		atomic.AddUint64(&success, 1)
 	}
 }
 
@@ -94,7 +103,7 @@ func main() {
 
 	evOpts := []greatws.EvOption{
 		greatws.WithEventLoops(runtime.NumCPU()),
-		greatws.WithBusinessGoNum(80, 10, 10000),
+		greatws.WithBusinessGoNum(80, 10, 80),
 		greatws.WithMaxEventNum(1000),
 		greatws.WithLogLevel(slog.LevelError),
 	}
@@ -133,12 +142,12 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			fmt.Printf("curConn:%d, curGoNum:%d, curGlobalGoNum:%d,curTask:%d, curGlobalTaskNum:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d, readEv:%d writeEv:%d\n",
+			fmt.Printf("OnMessage:%d, OnMessageSuccess:%d, curConn:%d, curGoNum:%d,curTask:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d, readEv:%d writeEv:%d\n",
+				atomic.LoadUint64(&total),
+				atomic.LoadUint64(&success),
 				h.m.GetCurConnNum(),
 				h.m.GetCurGoNum(),
-				h.m.GetGlobalCurGoNum(),
 				h.m.GetCurTaskNum(),
-				h.m.GetGlobalTaskNum(),
 				h.m.GetReadSyscallNum(),
 				h.m.GetWriteSyscallNum(),
 				h.m.GetReallocNum(),

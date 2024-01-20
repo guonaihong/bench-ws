@@ -3,11 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	// _ "net/http/pprof"
+	_ "net/http/pprof"
 
 	"github.com/antlabs/quickws"
 	"github.com/guonaihong/clop"
@@ -35,12 +36,15 @@ type Client struct {
 
 	Text string `clop:"long" usage:"send text"`
 
+	SaveErr bool `clop:"long" usage:"save error log"`
+
 	mu sync.Mutex
 
 	result []int
 }
 
-var int64Count int64
+var recvCount int64
+var sendCount int64
 
 var payload []byte
 
@@ -52,24 +56,31 @@ type echoHandler struct {
 	total int
 	curr  int
 
-	OpenCheck bool
+	*Client
 }
 
 func (e *echoHandler) OnOpen(c *quickws.Conn) {
 	c.WriteMessage(quickws.Binary, payload)
+	atomic.AddInt64(&sendCount, 1)
 }
 
 func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) {
 	// fmt.Println("OnMessage:", c, op, msg)
+	atomic.AddInt64(&sendCount, 1)
 	if op == quickws.Text || op == quickws.Binary {
 		c.WriteMessage(op, payload)
 		if e.OpenCheck {
 			if !bytes.Equal(msg, payload) {
+				if e.SaveErr {
+
+					os.WriteFile(fmt.Sprintf("%x.err.log"), payload, 0644)
+					os.WriteFile(fmt.Sprintf("%v.success.log"), msg, 0644)
+				}
 				panic("payload not equal")
 			}
 		}
 
-		atomic.AddInt64(&int64Count, 1)
+		atomic.AddInt64(&recvCount, 1)
 		select {
 		case _, ok := <-e.data:
 			if !ok {
@@ -90,7 +101,7 @@ func (client *Client) runTest(currTotal int, data chan struct{}) {
 		quickws.WithClientReplyPing(),
 		// quickws.WithClientCompression(),
 		// quickws.WithClientDecompressAndCompress(),
-		quickws.WithClientCallback(&echoHandler{total: currTotal, data: data, OpenCheck: client.OpenCheck}),
+		quickws.WithClientCallback(&echoHandler{total: currTotal, data: data, Client: client}),
 		// quickws.WithClientCallback(&echoHandler{done: done}),
 	)
 	if err != nil {
@@ -146,27 +157,29 @@ func (c *Client) consumer(data chan struct{}) {
 	}()
 
 	for i := 0; i < c.Concurrency; i++ {
-		go func() {
+		go func(i int) {
 			defer wg.Done()
 
 			c.runTest(c.Total/c.Concurrency, data)
-		}()
+			// fmt.Printf("bye bye consumer:%d\n", i)
+		}(i)
 	}
 }
 
 func (c *Client) printTps(now time.Time, sec *int) {
-	count := atomic.LoadInt64(&int64Count)
+	recvCount := atomic.LoadInt64(&recvCount)
+	sendCount := atomic.LoadInt64(&sendCount)
 	n := int64(time.Since(now).Seconds())
 	if n == 0 {
 		n = 1
 	}
 
 	if c.OpenTmpResult {
-		fmt.Printf("sec: %d, count: %d, tps: %d\n", *sec, count, count/n)
+		fmt.Printf("sec: %d, recv-count: %d, send-count:%d recv-tps: %d, send-tps: %d\n", *sec, recvCount, sendCount, recvCount/n, sendCount/n)
 	}
 
 	c.mu.Lock()
-	c.result = append(c.result, int(count/n))
+	c.result = append(c.result, int(recvCount/n))
 	c.mu.Unlock()
 }
 

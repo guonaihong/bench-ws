@@ -19,6 +19,7 @@ all:
 	# 编译linux
 	GOOS=linux GOARCH=amd64 go build -o quickws.linux ./quickws/quickws.go
 	GOOS=linux GOARCH=amd64 go build -o greatws.linux ./greatws/greatws.go
+	GOOS=linux GOARCH=amd64 go build -o greatws.race.linux ./greatws/greatws.go
 	GOOS=linux GOARCH=amd64 go build -o gws.linux ./gws/gws.go
 	GOOS=linux GOARCH=amd64 go build -o gws-std.linux ./gws-std/gws-std.go
 	GOOS=linux GOARCH=amd64 go build -o gorilla.linux ./gorilla/gorilla.go
