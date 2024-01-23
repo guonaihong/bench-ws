@@ -34,6 +34,23 @@ all:
 	GOOS=linux GOARCH=amd64 go build -o fasthttp-ws-std.linux ./fasthttp-ws-std/fasthttp-ws-std.go
 	GOOS=linux GOARCH=amd64 go build -o test-client.linux ./client/client.go
 
+	# 编译freebsd
+	GOOS=freebsd GOARCH=amd64 go build -o quickws.freebsd ./quickws/quickws.go
+	GOOS=freebsd GOARCH=amd64 go build -o greatws.freebsd ./greatws/greatws.go
+	GOOS=freebsd GOARCH=amd64 go build -o greatws.race.freebsd ./greatws/greatws.go
+	GOOS=freebsd GOARCH=amd64 go build -o gws.freebsd ./gws/gws.go
+	GOOS=freebsd GOARCH=amd64 go build -o gws-std.freebsd ./gws-std/gws-std.go
+	GOOS=freebsd GOARCH=amd64 go build -o gorilla.freebsd ./gorilla/gorilla.go
+	GOOS=freebsd GOARCH=amd64 go build -o gobwas.freebsd  ./gobwas/gobwas.go
+	GOOS=freebsd GOARCH=amd64 go build -o nettyws.freebsd ./nettyws/nettyws.go
+	GOOS=freebsd GOARCH=amd64 go build -o nbio-std.freebsd ./nbio-std/nbio-std.go
+	GOOS=freebsd GOARCH=amd64 go build -o nbio-nonblocking.freebsd ./nbio-nonblocking/nbio-nonblocking.go
+	GOOS=freebsd GOARCH=amd64 go build -o nbio-blocking.freebsd ./nbio-blocking/nbio-blocking.go
+	GOOS=freebsd GOARCH=amd64 go build -o nbio-mixed.freebsd ./nbio-mixed/nbio-mixed.go
+	GOOS=freebsd GOARCH=amd64 go build -o hertz-std.freebsd ./hertz-std/hertz-std.go
+	GOOS=freebsd GOARCH=amd64 go build -o hertz.freebsd ./hertz/hertz.go
+	GOOS=freebsd GOARCH=amd64 go build -o fasthttp-ws-std.freebsd ./fasthttp-ws-std/fasthttp-ws-std.go
+	GOOS=freebsd GOARCH=amd64 go build -o test-client.freebsd ./client/client.go
 clean:
 	rm *.linux
 	rm *.mac
