@@ -54,6 +54,7 @@ function traffic_test() {
     echo "## traffic scenario testing"
     echo "#### greatws runs on business goroutines"
     pkill greatws 2>/dev/null
+    sleep 1 #防止进程还存在
     ./greatws.linux &>/dev/null &
     WS_PID=$!
     sleep 1
@@ -62,6 +63,7 @@ function traffic_test() {
 
     echo "#### greatws runs on I/O goroutines-greatws bind mode"
     pkill greatws 2>/dev/null
+    sleep 1 #防止进程还存在
     ./greatws.linux -r &>/dev/null &
     WS_PID=$!
     sleep 1
@@ -70,6 +72,7 @@ function traffic_test() {
 
     echo "#### greatws uses one Goroutine per connection"
     pkill greatws 2>/dev/null
+    sleep 1 #防止进程还存在
     ./greatws.linux -s &>/dev/null &
     WS_PID=$!
     sleep 1
@@ -77,7 +80,9 @@ function traffic_test() {
     kill $WS_PID
 
     echo "#### quickws"
+    pkill greatws 2>/dev/null
     pkill quickws 2>/dev/null
+    sleep 1 #防止进程还存在
     ./quickws.linux &>/dev/null &
     WS_PID=$!
     sleep 1

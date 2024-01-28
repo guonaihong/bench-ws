@@ -1,13 +1,13 @@
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
-github.com/antlabs/greatws v0.1.4 h1:QlZc9Cg+yre0zixAMk79cH6AH6o6DUhnORj3rKk2qlM=
-github.com/antlabs/greatws v0.1.4/go.mod h1:fO17xB09xUpPqpGGCHFMhqbWMTkcI5UxKwxKYQOFWuE=
+github.com/antlabs/greatws v0.1.5 h1:uEQm0ufOnE2V+7PYyPN1qlsbVkGtMvWHfrG5xW9deYY=
+github.com/antlabs/greatws v0.1.5/go.mod h1:pphzH8BkoBQ6Pwzbu1eIwq66UuR61+AplGrGhpal7rQ=
 github.com/antlabs/quickws v0.1.9 h1:gNw/YkpwnsIlFvUx8h5edpnp+qgsPksnldz2jszhC88=
 github.com/antlabs/quickws v0.1.9/go.mod h1:GaD8pVfWm5RBFGX8CY9wQ3EQ/FeadTRRBJuT/JUq+oM=
 github.com/antlabs/strsim v0.0.2 h1:R4qjokEegYTrw+fkcYj3/UndG9Cn136fH+fpw9TIz9k=
 github.com/antlabs/strsim v0.0.2/go.mod h1:95XAAF2dJK9IiZMc0Ue6H9t477/i6fvYoMoeey8sEnc=
-github.com/antlabs/wsutil v0.1.6 h1:K7wR+EvqQT1Nn7jAKs3dKsGtUykPD2OYlCicv4/tUf8=
-github.com/antlabs/wsutil v0.1.6/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
+github.com/antlabs/wsutil v0.1.7 h1:DVxFaS20mw16CMc11EjBIlkZQtcs+X0I1DI/J6l/AoE=
+github.com/antlabs/wsutil v0.1.7/go.mod h1:7ec5eUM7nmKW+Oi6F1I58iatOeL9k+yIsfOh1zh910g=
 github.com/bytedance/go-tagexpr/v2 v2.9.2 h1:QySJaAIQgOEDQBLS3x9BxOWrnhqu5sQ+f6HaZIxD39I=
 github.com/bytedance/go-tagexpr/v2 v2.9.2/go.mod h1:5qsx05dYOiUXOUgnQ7w3Oz8BYs2qtM/bJokdLb79wRM=
 github.com/bytedance/gopkg v0.0.0-20220413063733-65bf48ffb3a7/go.mod h1:2ZlV9BaUH4+NXIBF0aMdKKAnHTzqH+iMU4KUjAbL23Q=

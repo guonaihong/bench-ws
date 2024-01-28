@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.0
 
 require (
-	github.com/antlabs/greatws v0.1.4
+	github.com/antlabs/greatws v0.1.5
 	github.com/antlabs/quickws v0.1.9
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/cloudwego/hertz v0.6.7
@@ -22,7 +22,7 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/antlabs/strsim v0.0.2 // indirect
-	github.com/antlabs/wsutil v0.1.6 // indirect
+	github.com/antlabs/wsutil v0.1.7 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/sonic v1.8.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
