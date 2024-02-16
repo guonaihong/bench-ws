@@ -37,10 +37,13 @@ func (c *Handler) OnPing(socket *gws.Conn, payload []byte) {
 }
 
 func (c *Handler) OnMessage(socket *gws.Conn, message *gws.Message) {
-	defer message.Close()
+
 	if c.AsyncWrite {
-		_ = socket.WriteAsync(message.Opcode, message.Bytes())
+		socket.WriteAsync(message.Opcode, message.Bytes(), func(err error) {
+			message.Close()
+		})
 	} else {
 		_ = socket.WriteMessage(message.Opcode, message.Bytes())
 	}
+	message.Close()
 }

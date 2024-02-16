@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
-	"runtime"
 	"sync/atomic"
 	"time"
 
@@ -31,6 +30,10 @@ type Config struct {
 	GoRoutineBindMode bool `clop:"short;long" usage:"use go routine bind"`
 	// 开启对流量压测友好的模式
 	TrafficMode bool `clop:"short;long" usage:"enable pressure mode"`
+	// 开启解析loop
+	ParseLoop bool `clop:"short;long" usage:"parse loopo"`
+	// 设置事件个数
+	EventNum int `clop:"long" usage:"event number"`
 }
 
 var upgrader *greatws.UpgradeServer
@@ -102,7 +105,7 @@ func main() {
 	}
 
 	evOpts := []greatws.EvOption{
-		greatws.WithEventLoops(runtime.NumCPU()),
+		greatws.WithEventLoops(cnf.EventNum),
 		greatws.WithBusinessGoNum(80, 10, 80),
 		greatws.WithMaxEventNum(1000),
 		greatws.WithLogLevel(slog.LevelError),
@@ -110,7 +113,9 @@ func main() {
 	if cnf.TrafficMode {
 		evOpts = append(evOpts, greatws.WithBusinessGoTrafficMode())
 	}
-
+	if cnf.ParseLoop {
+		evOpts = append(evOpts, greatws.WithParseInParseLoop())
+	}
 	h.m = greatws.NewMultiEventLoopMust(evOpts...) // epoll, kqueue
 
 	h.m.Start()
