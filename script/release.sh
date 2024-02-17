@@ -26,6 +26,7 @@ function tps_test() {
 
     echo "#### greatws runs on business goroutines"
     pkill greatws 2>/dev/null
+    sleep 1
     ./greatws.linux &>/dev/null &
     WS_PID=$!
     sleep 1

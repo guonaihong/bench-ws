@@ -31,7 +31,7 @@ type Config struct {
 	// 开启对流量压测友好的模式
 	TrafficMode bool `clop:"short;long" usage:"enable pressure mode"`
 	// 开启解析loop
-	ParseLoop bool `clop:"short;long" usage:"parse loopo"`
+	DisableParseLoop bool `clop:"short;long" usage:"disable parse loopo"`
 	// 设置事件个数
 	EventNum int `clop:"long" usage:"event number"`
 }
@@ -113,8 +113,8 @@ func main() {
 	if cnf.TrafficMode {
 		evOpts = append(evOpts, greatws.WithBusinessGoTrafficMode())
 	}
-	if cnf.ParseLoop {
-		evOpts = append(evOpts, greatws.WithParseInParseLoop())
+	if cnf.DisableParseLoop {
+		evOpts = append(evOpts, greatws.WithDisableParseInParseLoop())
 	}
 	h.m = greatws.NewMultiEventLoopMust(evOpts...) // epoll, kqueue
 
