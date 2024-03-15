@@ -24,8 +24,10 @@ type Config struct {
 	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
 	// 打开tcp nodealy
 	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
-	// 使用stream模式
-	StreamMode bool `clop:"short;long" usage:"use stream"`
+	// 使用stream模式, 一个连接对应一个go程
+	StreamMode   bool   `clop:"short;long" usage:"use stream"`
+	UnStreamMode bool   `clop:"short;long" usage:"use stream"`
+	CustomMode   string `clop:"short;long" usage:"custom mode"`
 	// 使用go程绑定模式, greatws默认模式
 	GoRoutineBindMode bool `clop:"short;long" usage:"use go routine bind"`
 	// 开启对流量压测友好的模式
@@ -111,7 +113,7 @@ func main() {
 		greatws.WithLogLevel(slog.LevelError),
 	}
 	if cnf.TrafficMode {
-		evOpts = append(evOpts, greatws.WithBusinessGoTrafficMode())
+		// evOpts = append(evOpts, greatws.WithBusinessGoTrafficMode())
 	}
 	if cnf.DisableParseLoop {
 		evOpts = append(evOpts, greatws.WithDisableParseInParseLoop())
@@ -137,7 +139,13 @@ func main() {
 		opts = append(opts, greatws.WithServerCallbackInEventLoop())
 	case cnf.GoRoutineBindMode:
 	case cnf.StreamMode:
-		opts = append(opts, greatws.WithServerStreamMode())
+		opts = append(opts, greatws.WithServerCustomTaskMode("stream"))
+	case cnf.UnStreamMode:
+		opts = append(opts, greatws.WithServerUnstreamMode())
+	}
+
+	if len(cnf.CustomMode) > 0 {
+		opts = append(opts, greatws.WithServerCustomTaskMode(cnf.CustomMode))
 	}
 
 	upgrader = greatws.NewUpgrade(opts...)
