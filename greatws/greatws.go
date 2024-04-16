@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"sync/atomic"
 	"time"
 
 	_ "net/http/pprof"
 
 	"github.com/antlabs/greatws"
+	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 )
 
@@ -36,6 +39,11 @@ type Config struct {
 	DisableParseLoop bool `clop:"short;long" usage:"disable parse loopo"`
 	// 设置事件个数
 	EventNum int `clop:"long" usage:"event number"`
+	MaxGoNum int `clop:"long" usage:"max go number" default:"80"`
+
+	// 使用限制端口范围, 默认1， -1表示不限制
+	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
+	m              *greatws.MultiEventLoop
 }
 
 var upgrader *greatws.UpgradeServer
@@ -79,11 +87,7 @@ func (e *echoHandler) OnClose(c *greatws.Conn, err error) {
 	// slog.Error("OnClose:", errMsg)
 }
 
-type handler struct {
-	m *greatws.MultiEventLoop
-}
-
-func (h *handler) echo(w http.ResponseWriter, r *http.Request) {
+func (h *Config) echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r)
 	if err != nil {
 		slog.Error("Upgrade fail:", "err", err.Error())
@@ -92,7 +96,6 @@ func (h *handler) echo(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var h handler
 
 	var cnf Config
 	clop.Bind(&cnf)
@@ -108,9 +111,9 @@ func main() {
 
 	evOpts := []greatws.EvOption{
 		greatws.WithEventLoops(cnf.EventNum),
-		greatws.WithBusinessGoNum(80, 10, 80),
+		greatws.WithBusinessGoNum(80, 10, cnf.MaxGoNum),
 		greatws.WithMaxEventNum(1000),
-		greatws.WithLogLevel(slog.LevelError),
+		greatws.WithLogLevel(slog.LevelDebug),
 	}
 	if cnf.TrafficMode {
 		// evOpts = append(evOpts, greatws.WithBusinessGoTrafficMode())
@@ -118,9 +121,9 @@ func main() {
 	if cnf.DisableParseLoop {
 		evOpts = append(evOpts, greatws.WithDisableParseInParseLoop())
 	}
-	h.m = greatws.NewMultiEventLoopMust(evOpts...) // epoll, kqueue
+	cnf.m = greatws.NewMultiEventLoopMust(evOpts...) // epoll, kqueue
 
-	h.m.Start()
+	cnf.m.Start()
 
 	opts := []greatws.ServerOption{
 		greatws.WithServerReplyPing(),
@@ -129,7 +132,7 @@ func main() {
 		greatws.WithServerCallback(&echoHandler{}),
 		// greatws.WithServerEnableUTF8Check(),
 		greatws.WithServerReadTimeout(5 * time.Second),
-		greatws.WithServerMultiEventLoop(h.m),
+		greatws.WithServerMultiEventLoop(cnf.m),
 
 		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
 	}
@@ -150,7 +153,7 @@ func main() {
 
 	upgrader = greatws.NewUpgrade(opts...)
 
-	fmt.Printf("apiname:%s\n", h.m.GetApiName())
+	fmt.Printf("apiname:%s\n", cnf.m.GetApiName())
 
 	go func() {
 		for {
@@ -158,41 +161,29 @@ func main() {
 			fmt.Printf("OnMessage:%d, OnMessageSuccess:%d, curConn:%d, curGoNum:%d,curTask:%d, readSyscall:%d, writeSyscall:%d, realloc:%d, moveBytes:%d, readEv:%d writeEv:%d\n",
 				atomic.LoadUint64(&total),
 				atomic.LoadUint64(&success),
-				h.m.GetCurConnNum(),
-				h.m.GetCurGoNum(),
-				h.m.GetCurTaskNum(),
-				h.m.GetReadSyscallNum(),
-				h.m.GetWriteSyscallNum(),
-				h.m.GetReallocNum(),
-				h.m.GetMoveBytesNum(),
-				h.m.GetReadEvNum(),
-				h.m.GetWriteEvNum(),
+				cnf.m.GetCurConnNum(),
+				cnf.m.GetCurGoNum(),
+				cnf.m.GetCurTaskNum(),
+				cnf.m.GetReadSyscallNum(),
+				cnf.m.GetWriteSyscallNum(),
+				cnf.m.GetReallocNum(),
+				cnf.m.GetMoveBytesNum(),
+				cnf.m.GetReadEvNum(),
+				cnf.m.GetWriteEvNum(),
 			)
 		}
 	}()
 
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", h.echo)
-
-	rawTCP, err := net.Listen("tcp", cnf.Addr)
+	addrs, err := config.GetFrameworkServerAddrs(config.Quickws, cnf.LimitPortRange)
 	if err != nil {
-		fmt.Println("Listen fail:", err)
-		return
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Quickws, err)
 	}
 
-	log.Println("non-tls server exit:", http.Serve(rawTCP, mux))
-
-	// cert, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
-	// if err != nil {
-	// 	log.Fatalf("tls.X509KeyPair failed: %v", err)
-	// }
-	// tlsConfig := &tls.Config{
-	// 	Certificates:       []tls.Certificate{cert},
-	// 	InsecureSkipVerify: true,
-	// }
-	// lnTLS, err := tls.Listen("tcp", "localhost:9002", tlsConfig)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// log.Println("tls server exit:", http.Serve(lnTLS, mux))
+	lns := core.StartServers(addrs, cnf.echo)
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	for _, ln := range lns {
+		ln.Close()
+	}
 }

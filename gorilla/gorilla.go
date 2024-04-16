@@ -2,14 +2,17 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 )
 
@@ -20,7 +23,8 @@ type Config struct {
 
 	Addr string `clop:"short;long" usage:"websocket server address" default:":5555"`
 	// 打开tcp nodealy
-	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
+	OpenTcpDelay   bool `clop:"short;long" usage:"tcp delay"`
+	LimitPortRange int  `clop:"short;long" usage:"limit port range" default:"1"`
 }
 
 var upgrader = websocket.Upgrader{}
@@ -100,14 +104,16 @@ func main() {
 	mux := &http.ServeMux{}
 	mux.HandleFunc("/", conf.echo)
 
-	go func() {
-		// log.Println(http.ListenAndServe(":6060", nil))
-	}()
-	rawTCP, err := net.Listen("tcp", conf.Addr)
+	addrs, err := config.GetFrameworkServerAddrs(config.Gorilla, conf.LimitPortRange)
 	if err != nil {
-		fmt.Println("Listen fail:", err)
-		return
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Gorilla, err)
 	}
+	lns := core.StartServers(addrs, conf.echo)
 
-	log.Println("non-tls server exit:", http.Serve(rawTCP, mux))
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	for _, ln := range lns {
+		ln.Close()
+	}
 }

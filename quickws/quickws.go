@@ -6,8 +6,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 	"net/http"
+	"os"
+	"os/signal"
+
+	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/core"
 
 	// _ "net/http/pprof"
 
@@ -34,6 +38,8 @@ type Config struct {
 	UseDelayWrite bool `clop:"long" usage:"use delay write"`
 	// 设置延迟发送接口的初始缓冲区大小
 	DelayWriteInitBufferSize int `clop:"long" usage:"delay write init buffer size" default:"4096"`
+	// 使用限制端口范围, 默认1， -1表示不限制
+	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
 }
 
 var upgrader *quickws.UpgradeServer
@@ -124,17 +130,16 @@ func main() {
 
 	upgrader = quickws.NewUpgrade(opt...)
 
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", cnf.echo)
-
-	go func() {
-		// log.Println(http.ListenAndServe(":6060", nil))
-	}()
-	rawTCP, err := net.Listen("tcp", cnf.Addr)
+	addrs, err := config.GetFrameworkServerAddrs(config.Quickws, cnf.LimitPortRange)
 	if err != nil {
-		fmt.Println("Listen fail:", err)
-		return
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Quickws, err)
 	}
 
-	log.Println("non-tls server exit:", http.Serve(rawTCP, mux))
+	lns := core.StartServers(addrs, cnf.echo)
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	for _, ln := range lns {
+		ln.Close()
+	}
 }

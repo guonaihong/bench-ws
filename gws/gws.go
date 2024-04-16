@@ -1,20 +1,65 @@
 package main
 
 import (
+	"go-websocket-benchmark/config"
+	"go-websocket-benchmark/logging"
 	"log"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
 
+	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 	"github.com/lxzan/gws"
 )
 
+func startServers(addrs []string) []net.Listener {
+	lns := make([]net.Listener, 0, len(addrs))
+	for _, addr := range addrs {
+		server := gws.NewServer(new(Handler), &gws.ServerOption{})
+		ln, err := core.Listen("tcp", addr)
+		if err != nil {
+			logging.Fatalf("Listen failed: %v", err)
+		}
+		lns = append(lns, ln)
+		go func() {
+			logging.Printf("server exit: %v", server.RunListener(ln))
+		}()
+	}
+	return lns
+}
 func main() {
 	h := &Handler{}
 	clop.Bind(h)
-	app := gws.NewServer(h, &gws.ServerOption{
-		// CompressEnabled:  true,
-		CheckUtf8Enabled: false,
-	})
-	log.Fatalf("%v", app.Run(h.Addr))
+
+	addrs, err := config.GetFrameworkServerAddrs(config.Gws)
+	if err != nil {
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Gws, err)
+	}
+	lns := startServers(addrs)
+	pidServerAddr, err := config.GetFrameworkPidServerAddrs(config.Gws)
+	if err != nil {
+		log.Fatalf("GetFrameworkPidServerAddrs(%v) failed: %v", config.Gws, err)
+	}
+	var pidLn net.Listener
+	go func() {
+		mux := &http.ServeMux{}
+		core.HandleCommon(mux)
+		ln, err := core.Listen("tcp", pidServerAddr)
+		if err != nil {
+			log.Fatalf("Listen failed: %v", err)
+		}
+		pidLn = ln
+		log.Printf("pid server exit: %v", http.Serve(ln, mux))
+	}()
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	for _, ln := range lns {
+		ln.Close()
+	}
+	pidLn.Close()
 }
 
 type Handler struct {

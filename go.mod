@@ -16,6 +16,7 @@ require (
 	github.com/guonaihong/clop v0.2.11
 	github.com/hertz-contrib/websocket v0.0.1
 	github.com/lesismal/nbio v1.5.3
+	github.com/libp2p/go-reuseport v0.4.0
 	github.com/lxzan/gws v1.8.0
 )
 

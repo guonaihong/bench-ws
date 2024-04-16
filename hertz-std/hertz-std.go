@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"go-websocket-benchmark/logging"
 	"io"
 	"log"
 	"os"
@@ -12,7 +14,9 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/network/standard"
+	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/clop"
+	"github.com/hertz-contrib/pprof"
 	"github.com/hertz-contrib/websocket"
 )
 
@@ -23,26 +27,49 @@ type Config struct {
 	UseReader      bool `clop:"short;long" usage:"use reader"`
 	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
 
-	Addr string `clop:"short;long" usage:"websocket server address" default:":5555""`
+	Addr           string `clop:"short;long" usage:"websocket server address" default:":5555""`
+	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
 }
 
 func main() {
-	var conf Config
-	clop.Bind(&conf)
+	var cnf Config
+	clop.Bind(&cnf)
 
 	hlog.SetLevel(hlog.LevelFatal)
 	gopool.SetCap(1000000)
 
-	srv := server.New(server.WithHostPorts(conf.Addr),
-		server.WithTransport(standard.NewTransporter))
-	go func() {
-		srv.GET("/", conf.onWebsocket)
-		srv.Spin()
-	}()
+	addrs, err := config.GetFrameworkServerAddrs(config.HertzStd, cnf.ReadBufferSize)
+	if err != nil {
+		logging.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.HertzStd, err)
+	}
+	srvs := cnf.startServers(addrs)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt
+	for _, srv := range srvs {
+		srv.Close()
+	}
+}
+
+func onServerPid(c context.Context, ctx *app.RequestContext) {
+	ctx.Response.BodyWriter().Write([]byte(fmt.Sprintf("%d", os.Getpid())))
+}
+
+func (c *Config) startServers(addrs []string) []*server.Hertz {
+	srvs := make([]*server.Hertz, 0, len(addrs))
+	for _, addr := range addrs {
+		srv := server.New(server.WithHostPorts(addr),
+			server.WithTransport(standard.NewTransporter))
+		pprof.Register(srv)
+		srvs = append(srvs, srv)
+		go func() {
+			srv.GET("/ws", c.onWebsocket)
+			srv.GET("/pid", onServerPid)
+			srv.Spin()
+		}()
+	}
+	return srvs
 }
 
 func (c *Config) onWebsocket(c2 context.Context, ctx *app.RequestContext) {

@@ -1,14 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"go-websocket-benchmark/frameworks"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/fasthttp/websocket"
+	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 )
 
@@ -17,7 +21,8 @@ type Config struct {
 	UseReader      bool `clop:"short;long" usage:"use reader"`
 	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
 
-	Addr string `clop:"short;long" usage:"websocket server address" default:":5555"`
+	Addr           string `clop:"short;long" usage:"websocket server address" default:":5555"`
+	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
 }
 
 var upgrader = websocket.Upgrader{}
@@ -78,21 +83,41 @@ func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
 	go c.work(conn)
 }
 
-func main() {
-	var conf Config
-	clop.Bind(&conf)
-
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", conf.echo)
-
-	go func() {
-		// log.Println(http.ListenAndServe(":6060", nil))
-	}()
-	rawTCP, err := net.Listen("tcp", conf.Addr)
-	if err != nil {
-		fmt.Println("Listen fail:", err)
-		return
+func (c *Config) startServers(addrs []string) []net.Listener {
+	lns := make([]net.Listener, 0, len(addrs))
+	for _, addr := range addrs {
+		mux := &http.ServeMux{}
+		mux.HandleFunc("/ws", c.echo)
+		core.HandleCommon(mux)
+		server := http.Server{
+			// Addr:    addr,
+			Handler: mux,
+		}
+		ln, err := frameworks.Listen("tcp", addr)
+		if err != nil {
+			log.Fatalf("Listen failed: %v", err)
+		}
+		lns = append(lns, ln)
+		go func() {
+			log.Printf("server exit: %v", server.Serve(ln))
+		}()
 	}
+	return lns
+}
+func main() {
+	var cnf Config
+	clop.Bind(&cnf)
 
-	log.Println("non-tls server exit:", http.Serve(rawTCP, mux))
+	addrs, err := config.GetFrameworkServerAddrs(config.Fasthttp, cnf.LimitPortRange)
+	if err != nil {
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Fasthttp, err)
+	}
+	lns := core.StartServers(addrs, cnf.echo)
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	for _, ln := range lns {
+		ln.Close()
+	}
 }
