@@ -15,7 +15,8 @@ import (
 var upgrader = websocket.NewUpgrader()
 
 type Config struct {
-	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	Addr           string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
 }
 
 func main() {

@@ -24,7 +24,8 @@ type Config struct {
 	UseStdMalloc   bool `clop:"short;long" usage:"use reader"`
 	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
 
-	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	Addr           string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
 }
 
 func main() {
