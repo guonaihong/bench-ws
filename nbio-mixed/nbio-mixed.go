@@ -1,15 +1,16 @@
 package main
 
 import (
+	"go-websocket-benchmark/frameworks"
+	"go-websocket-benchmark/logging"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/clop"
-	"github.com/lesismal/nbio/logging"
 	"github.com/lesismal/nbio/mempool"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -22,41 +23,56 @@ type Config struct {
 	UseReader      bool `clop:"short;long" usage:"use reader"`
 	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
 
-	Addr           string `clop:"short;long" usage:"websocket server address" default:":4444""`
-	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
+	Addr              string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	LimitPortRange    int    `clop:"short;long" usage:"limit port range" default:"1"`
+	MaxBlockingOnline int    `clop:"short;long" usage:"max blocking online num, e.g. 10000" default:"10000"`
 }
 
 func main() {
-	var conf Config
-	clop.Bind(&conf)
-	mempool.DefaultMemPool = mempool.New(1024+1024, 1024*1024*1024)
+	var cnf Config
+	clop.Bind(&cnf)
 
-	logging.SetLevel(logging.LevelError)
-	upgrader.BlockingModAsyncWrite = false
+	mempool.DefaultMemPool = mempool.New(cnf.ReadBufferSize+1024, 1024*1024*1024)
 
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		c.WriteMessage(messageType, data)
 	})
+	upgrader.KeepaliveTime = 0
+	upgrader.BlockingModAsyncWrite = false
 
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", onWebsocket)
+	addrs, err := config.GetFrameworkServerAddrs(config.NbioModMixed, cnf.LimitPortRange)
+	if err != nil {
+		logging.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioModMixed, err)
+	}
+	engine := cnf.startServers(addrs)
 
-	engine := nbhttp.NewEngine(nbhttp.Config{
-		Network: "tcp",
-		Addrs:   []string{conf.Addr},
-		Handler: mux,
-		// IOMod:                   nbhttp.IOModBlocking,
-		IOMod:                   nbhttp.IOModMixed,
-		ReleaseWebsocketPayload: true,
-		Listen:                  net.Listen,
-	})
-	engine.Start()
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt
 	engine.Stop()
 }
 
+func (c *Config) startServers(addrs []string) *nbhttp.Engine {
+	mux := &http.ServeMux{}
+	mux.HandleFunc("/ws", onWebsocket)
+	frameworks.HandleCommon(mux)
+	engine := nbhttp.NewEngine(nbhttp.Config{
+		Network:                 "tcp",
+		Addrs:                   addrs,
+		Handler:                 mux,
+		IOMod:                   nbhttp.IOModMixed,
+		MaxBlockingOnline:       c.MaxBlockingOnline,
+		ReleaseWebsocketPayload: true,
+		Listen:                  frameworks.Listen,
+	})
+
+	err := engine.Start()
+	if err != nil {
+		log.Fatalf("nbio.Start failed: %v", err)
+	}
+
+	return engine
+}
 func onWebsocket(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

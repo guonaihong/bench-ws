@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
+	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 	"github.com/lesismal/nbio/logging"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -20,24 +22,28 @@ type Config struct {
 }
 
 func main() {
-	var conf Config
-	clop.Bind(&conf)
+	var cnf Config
+	clop.Bind(&cnf)
 	logging.SetLevel(logging.LevelError)
+
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		c.WriteMessage(messageType, data)
 	})
+	upgrader.KeepaliveTime = 0
 	upgrader.BlockingModAsyncWrite = false
 
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", onWebsocket)
-
-	rawTCP, err := net.Listen("tcp", conf.Addr)
+	addrs, err := config.GetFrameworkServerAddrs(config.NbioStd, cnf.LimitPortRange)
 	if err != nil {
-		fmt.Println("Listen fail:", err)
-		return
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioStd, err)
 	}
+	lns := core.StartServers(addrs, onWebsocket)
 
-	log.Println("non-tls server exit:", http.Serve(rawTCP, mux))
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	for _, ln := range lns {
+		ln.Close()
+	}
 }
 
 func onWebsocket(w http.ResponseWriter, r *http.Request) {

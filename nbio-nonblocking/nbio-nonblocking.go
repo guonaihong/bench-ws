@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
+	"go-websocket-benchmark/frameworks"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime/debug"
 	"time"
 
+	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/clop"
-	// "github.com/lesismal/nbio/logging"
+
+	// "github.com/lesismal/nbio/log"
 	"github.com/lesismal/nbio/mempool"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -29,41 +31,28 @@ type Config struct {
 }
 
 func main() {
-	var conf Config
-	clop.Bind(&conf)
+	var cnf Config
+	clop.Bind(&cnf)
 
 	// 内存限制得越低效率越低、压测的带宽越低
 	debug.SetMemoryLimit(1024 * 1024 * 512)
-	if conf.UseStdMalloc {
+	if cnf.UseStdMalloc {
 		// tcpkali这种场景，nbio用标准库比mempool内存占用低
 		mempool.DefaultMemPool = &allocator{} // mempool.New(1024+1024, 1024*1024*1024)
 	} else {
-		mempool.DefaultMemPool = mempool.New(1024+1024, 1024*1024*1024)
+		mempool.DefaultMemPool = mempool.New(cnf.ReadBufferSize+1024, 1024*1024*1024)
 	}
 
-	// logging.SetLevel(logging.LevelError)
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		c.WriteMessage(messageType, data)
 	})
-	// upgrader.BlockingModAsyncWrite = false
+	upgrader.KeepaliveTime = 0
 
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", onWebsocket)
-
-	engine := nbhttp.NewEngine(nbhttp.Config{
-		Network:                 "tcp",
-		Addrs:                   []string{conf.Addr},
-		Handler:                 mux,
-		IOMod:                   nbhttp.IOModNonBlocking,
-		ReleaseWebsocketPayload: true,
-		Listen:                  net.Listen,
-		ReadBufferSize:          4096,
-	})
-
-	err := engine.Start()
+	addrs, err := config.GetFrameworkServerAddrs(config.NbioModNonblocking, cnf.LimitPortRange)
 	if err != nil {
-		log.Fatalf("nbio.Start failed: %v", err)
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioModNonblocking, err)
 	}
+	engine := startServers(addrs)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -80,6 +69,27 @@ func onWebsocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.SetReadDeadline(time.Time{})
+}
+
+func startServers(addrs []string) *nbhttp.Engine {
+	mux := &http.ServeMux{}
+	mux.HandleFunc("/ws", onWebsocket)
+	frameworks.HandleCommon(mux)
+	engine := nbhttp.NewEngine(nbhttp.Config{
+		Network:                 "tcp",
+		Addrs:                   addrs,
+		Handler:                 mux,
+		IOMod:                   nbhttp.IOModNonBlocking,
+		ReleaseWebsocketPayload: true,
+		Listen:                  frameworks.Listen,
+	})
+
+	err := engine.Start()
+	if err != nil {
+		log.Fatalf("nbio.Start failed: %v", err)
+	}
+
+	return engine
 }
 
 type allocator struct{}
