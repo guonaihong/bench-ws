@@ -68,9 +68,7 @@ type Handler struct {
 	Addr       string `clop:"long" usage:"websocket server address" default:":6666""`
 	// 打开tcp nodealy
 	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
-	Reuse        bool `clop:"short;long" usage:"reuse port"`
-	// 使用限制端口范围, 默认1， -1表示不限制
-	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
+	core.BaseCmd
 }
 
 func (c *Handler) OnOpen(socket *gws.Conn) {

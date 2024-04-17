@@ -19,9 +19,7 @@ var upgrader = websocket.NewUpgrader()
 
 type Config struct {
 	// 打开性能优化开关
-	UseReader      bool `clop:"short;long" usage:"use reader"`
-	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
-
+	UseReader         bool   `clop:"short;long" usage:"use reader"`
 	Addr              string `clop:"short;long" usage:"websocket server address" default:":4444""`
 	MaxBlockingOnline int    `clop:"short;long" usage:"max blocking online num, e.g. 10000" default:"10000"`
 	core.BaseCmd

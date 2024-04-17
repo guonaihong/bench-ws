@@ -20,7 +20,7 @@ import (
 )
 
 type Config struct {
-	RunInEventLoop bool   `clop:"short;long" usage:"run in event loop"`
+	RunInEventLoop bool   `clop:"long" usage:"run in event loop"`
 	Addr           string `clop:"short;long" usage:"websocket server address" default:":9001"`
 	EnableUtf8     bool   `clop:"short;long" usage:"enable utf8"`
 	// 几倍的窗口大小

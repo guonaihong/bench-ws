@@ -18,10 +18,8 @@ import (
 
 type Config struct {
 	// 打开性能优化开关
-	UseReader      bool `clop:"short;long" usage:"use reader"`
-	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
-
-	Addr string `clop:"short;long" usage:"websocket server address" default:":5555"`
+	UseReader bool   `clop:"short;long" usage:"use reader"`
+	Addr      string `clop:"short;long" usage:"websocket server address" default:":5555"`
 	// 打开tcp nodealy
 	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 	core.BaseCmd

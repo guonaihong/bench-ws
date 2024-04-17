@@ -14,9 +14,9 @@ import (
 )
 
 type Conf struct {
-	Addr           string `clop:"short;long" usage:"websocket server address" default:":6666""`
-	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
-	Nodelay        bool   `clop:"short;long usage:"nodelay" default:"true"`
+	Addr    string `clop:"short;long" usage:"websocket server address" default:":6666""`
+	Nodelay bool   `clop:"short;long usage:"nodelay" default:"true"`
+	core.BaseCmd
 }
 
 // https://github.com/go-netty/go-netty-ws/blob/master/example/echo.go

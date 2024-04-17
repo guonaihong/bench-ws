@@ -23,10 +23,8 @@ var upgrader = websocket.NewUpgrader()
 
 type Config struct {
 	// 打开性能优化开关
-	UseStdMalloc   bool `clop:"short;long" usage:"use reader"`
-	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
-
-	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	UseStdMalloc bool   `clop:"short;long" usage:"use reader"`
+	Addr         string `clop:"short;long" usage:"websocket server address" default:":4444""`
 	core.BaseCmd
 }
 
