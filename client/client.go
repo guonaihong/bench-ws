@@ -11,13 +11,15 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/antlabs/quickws"
+	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/clop"
 )
 
 // https://github.com/snapview/tokio-tungstenite/blob/master/examples/autobahn-client.rs
 
 type Client struct {
-	WSAddr string `clop:"short;long" usage:"websocket server address"`
+	WSAddr string `clop:"short;long" usage:"websocket server address, eg: ws://host:port or ws://host:minport-maxport"`
+	Name   string `clop:"short;long" usage:"server name"`
 	// 运行总次数
 	Total int `clop:"short;long" usage:"total" default:"100"`
 
@@ -38,9 +40,19 @@ type Client struct {
 
 	SaveErr bool `clop:"long" usage:"save error log"`
 
-	mu sync.Mutex
+	// 使用限制端口范围, 默认1， -1表示不限制
+	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
+	mu             sync.Mutex
 
 	result []int
+
+	addrs []string
+	index int64
+}
+
+func (c *Client) getAddrs() string {
+	curIndex := int(atomic.AddInt64(&c.index, 1))
+	return c.addrs[curIndex%len(c.addrs)]
 }
 
 var recvCount int64
@@ -73,8 +85,8 @@ func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) 
 			if !bytes.Equal(msg, payload) {
 				if e.SaveErr {
 
-					os.WriteFile(fmt.Sprintf("%x.err.log"), payload, 0644)
-					os.WriteFile(fmt.Sprintf("%v.success.log"), msg, 0644)
+					os.WriteFile(fmt.Sprintf("%x.err.log", c), payload, 0644)
+					os.WriteFile(fmt.Sprintf("%v.success.log", c), msg, 0644)
 				}
 				panic("payload not equal")
 			}
@@ -97,7 +109,7 @@ func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
 }
 
 func (client *Client) runTest(currTotal int, data chan struct{}) {
-	c, err := quickws.Dial(client.WSAddr,
+	c, err := quickws.Dial(client.getAddrs(),
 		quickws.WithClientReplyPing(),
 		// quickws.WithClientCompression(),
 		// quickws.WithClientDecompressAndCompress(),
@@ -193,15 +205,18 @@ func (c *Client) Run(now time.Time) {
 func main() {
 	var c Client
 
-	go func() {
-		// log.Println(http.ListenAndServe(":6060", nil))
-	}()
 	clop.MustBind(&c)
 	if len(c.Text) > 0 {
 		payload = []byte(c.Text)
 	} else {
 		payload = bytes.Repeat([]byte("𠜎"), c.PayloadSize/len("𠜎"))
 	}
+
+	if c.WSAddr == "" && c.Name == "" {
+		fmt.Printf("wsaddr or name is required, ./test-client -h\n")
+		os.Exit(1)
+	}
+	c.addrs = config.GenerateAddrs(c.WSAddr, c.Name)
 	data := make(chan struct{}, c.Total)
 
 	now := time.Now()

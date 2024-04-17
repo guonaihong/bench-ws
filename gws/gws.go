@@ -1,30 +1,29 @@
 package main
 
 import (
-	"go-websocket-benchmark/config"
-	"go-websocket-benchmark/logging"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 
+	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 	"github.com/lxzan/gws"
 )
 
-func startServers(addrs []string) []net.Listener {
+func startServers(addrs []string, reuse bool) []net.Listener {
 	lns := make([]net.Listener, 0, len(addrs))
 	for _, addr := range addrs {
 		server := gws.NewServer(new(Handler), &gws.ServerOption{})
-		ln, err := core.Listen("tcp", addr)
+		ln, err := core.Listen("tcp", addr, reuse)
 		if err != nil {
-			logging.Fatalf("Listen failed: %v", err)
+			log.Fatalf("Listen failed: %v", err)
 		}
 		lns = append(lns, ln)
 		go func() {
-			logging.Printf("server exit: %v", server.RunListener(ln))
+			log.Printf("server exit: %v", server.RunListener(ln))
 		}()
 	}
 	return lns
@@ -33,11 +32,11 @@ func main() {
 	h := &Handler{}
 	clop.Bind(h)
 
-	addrs, err := config.GetFrameworkServerAddrs(config.Gws)
+	addrs, err := config.GetFrameworkServerAddrs(config.Gws, h.LimitPortRange)
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Gws, err)
 	}
-	lns := startServers(addrs)
+	lns := startServers(addrs, h.Reuse)
 	pidServerAddr, err := config.GetFrameworkPidServerAddrs(config.Gws)
 	if err != nil {
 		log.Fatalf("GetFrameworkPidServerAddrs(%v) failed: %v", config.Gws, err)
@@ -46,7 +45,7 @@ func main() {
 	go func() {
 		mux := &http.ServeMux{}
 		core.HandleCommon(mux)
-		ln, err := core.Listen("tcp", pidServerAddr)
+		ln, err := core.Listen("tcp", pidServerAddr, h.Reuse)
 		if err != nil {
 			log.Fatalf("Listen failed: %v", err)
 		}
@@ -69,6 +68,9 @@ type Handler struct {
 	Addr       string `clop:"long" usage:"websocket server address" default:":6666""`
 	// 打开tcp nodealy
 	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
+	Reuse        bool `clop:"short;long" usage:"reuse port"`
+	// 使用限制端口范围, 默认1， -1表示不限制
+	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
 }
 
 func (c *Handler) OnOpen(socket *gws.Conn) {

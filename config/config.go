@@ -64,6 +64,72 @@ var FrameworkList = []string{
 	GreatwsEvent,
 }
 
+func GenerateAddrs(WSAddr, Name string) []string {
+	var Addrs []string
+
+	// 如果 WSAddr 为空并且 Name 不为空，将 host 设置为 "127.0.0.1"
+	host := "ws://127.0.0.1"
+	portAndPath := ""
+	var parts []string
+	if WSAddr != "" {
+		if strings.HasPrefix(WSAddr, "ws://") {
+			parts = strings.Split(WSAddr[5:], ":")
+			host = fmt.Sprintf("ws://%s", parts[0])
+		} else if strings.HasPrefix(WSAddr, "ws://") {
+			parts := strings.Split(WSAddr[6:], ":")
+			host = fmt.Sprintf("wss://%s", parts[0])
+		} else {
+			parts := strings.Split(WSAddr, ":")
+			host = parts[0]
+		}
+
+		if len(parts) > 1 {
+			portAndPath = parts[1]
+		}
+	}
+
+	if portAndPath != "" {
+		path := ""
+		if strings.Contains(portAndPath, "/") {
+			pos := strings.Index(portAndPath, "/")
+			path = portAndPath[pos+1:]
+			portAndPath = portAndPath[:pos]
+		}
+
+		if strings.Contains(portAndPath, "-") {
+			// WSAddr 格式是 host:minport-maxport
+			rangeParts := strings.Split(portAndPath, "-")
+			minPortStr := rangeParts[0]
+			maxPortStr := rangeParts[1]
+			minPort, _ := strconv.Atoi(minPortStr)
+			maxPort, _ := strconv.Atoi(maxPortStr)
+			for i := minPort; i <= maxPort; i++ {
+				if len(path) == 0 {
+					Addrs = append(Addrs, fmt.Sprintf("%s:%d", host, i))
+				} else {
+					Addrs = append(Addrs, fmt.Sprintf("%s:%d/%s", host, i, path))
+				}
+			}
+		} else {
+			// WSAddr 格式是 host:port
+			Addrs = append(Addrs, WSAddr)
+		}
+	} else if Name != "" {
+		portRange, exists := Ports[Name]
+		if exists {
+			minPortStr := strings.Split(portRange, ":")[0]
+			maxPortStr := strings.Split(portRange, ":")[1]
+			minPort, _ := strconv.Atoi(minPortStr)
+			maxPort, _ := strconv.Atoi(maxPortStr)
+			for i := minPort; i <= maxPort; i++ {
+				Addrs = append(Addrs, fmt.Sprintf("%s:%d", host, i))
+			}
+		}
+	}
+
+	return Addrs
+}
+
 func GetFrameworkBenchmarkPorts(framework string) ([]int, error) {
 	portRange := strings.Split(Ports[framework], ":")
 	minPort, err := strconv.Atoi(portRange[0])
@@ -79,6 +145,24 @@ func GetFrameworkBenchmarkPorts(framework string) ([]int, error) {
 		ports = append(ports, i)
 	}
 	return ports, nil
+}
+
+// GetFrameworkClientAddrs returns the client addresses for the given framework.
+func GetFrameworkClientAddrs(framework string, host string, limit int) ([]string, error) {
+	ports, err := GetFrameworkBenchmarkPorts(framework)
+	if err != nil {
+		return nil, err
+	}
+	addrs := make([]string, 0, len(ports))
+	for _, port := range ports {
+		addrs = append(addrs, fmt.Sprintf("%s:%d", host, port))
+	}
+
+	n := len(addrs)
+	if limit > 0 {
+		n = min(n, limit)
+	}
+	return addrs[:n], nil
 }
 
 func GetFrameworkServerAddrs(framework string, limit int) ([]string, error) {

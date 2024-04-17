@@ -22,6 +22,7 @@ type Config struct {
 
 	Addr           string `clop:"short;long" usage:"websocket server address" default:":4444""`
 	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
+	Reuse          bool   `clop:"short;long" usage:"reuse port"`
 }
 
 func main() {
@@ -40,7 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioModBlocking, err)
 	}
-	engine := startServers(addrs)
+	engine := cnf.startServers(addrs)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -48,7 +49,7 @@ func main() {
 	engine.Stop()
 }
 
-func startServers(addrs []string) *nbhttp.Engine {
+func (c *Config) startServers(addrs []string) *nbhttp.Engine {
 	mux := &http.ServeMux{}
 	mux.HandleFunc("/ws", onWebsocket)
 	core.HandleCommon(mux)
@@ -58,7 +59,7 @@ func startServers(addrs []string) *nbhttp.Engine {
 		Handler:                 mux,
 		IOMod:                   nbhttp.IOModBlocking,
 		ReleaseWebsocketPayload: true,
-		Listen:                  core.Listen,
+		Listen:                  core.Listen2(c.Reuse),
 	})
 
 	err := engine.Start()

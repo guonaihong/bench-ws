@@ -41,9 +41,8 @@ type Config struct {
 	EventNum int `clop:"long" usage:"event number"`
 	MaxGoNum int `clop:"long" usage:"max go number" default:"80"`
 
-	// 使用限制端口范围, 默认1， -1表示不限制
-	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
-	m              *greatws.MultiEventLoop
+	core.BaseCmd
+	m *greatws.MultiEventLoop
 }
 
 var upgrader *greatws.UpgradeServer
@@ -179,7 +178,7 @@ func main() {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Quickws, err)
 	}
 
-	lns := core.StartServers(addrs, cnf.echo)
+	lns := core.StartServers(addrs, cnf.echo, cnf.Reuse)
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt

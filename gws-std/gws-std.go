@@ -18,9 +18,9 @@ type Config struct {
 	AsyncWrite bool   `clop:"short;long" usage:"async write"`
 	Addr       string `clop:"long" usage:"websocket server address" default:":6666""`
 	// 打开tcp nodealy
-	OpenTcpDelay   bool `clop:"short;long" usage:"tcp delay"`
-	LimitPortRange int  `clop:"short;long" usage:"limit port range" default:"1"`
+	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 
+	core.BaseCmd
 	upgrader *gws.Upgrader
 }
 
@@ -67,7 +67,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.GwsStd, err)
 	}
-	lns := core.StartServers(addrs, cnf.onWebsocket)
+	lns := core.StartServers(addrs, cnf.onWebsocket, cnf.Reuse)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)

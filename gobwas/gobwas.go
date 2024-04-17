@@ -18,8 +18,7 @@ import (
 
 type Config struct {
 	Addr string `clop:"short;long" usage:"websocket server address" default:":9001"`
-	// 使用限制端口范围, 默认1， -1表示不限制
-	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
+	core.BaseCmd
 }
 
 func (c *Config) work(conn net.Conn, brw *bufio.ReadWriter) {
@@ -60,7 +59,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Gobwas, err)
 	}
-	lns := core.StartServers(addrs, cnf.echo)
+	lns := core.StartServers(addrs, cnf.echo, cnf.Reuse)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)

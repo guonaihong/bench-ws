@@ -17,8 +17,8 @@ import (
 var upgrader = websocket.NewUpgrader()
 
 type Config struct {
-	Addr           string `clop:"short;long" usage:"websocket server address" default:":4444""`
-	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
+	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	core.BaseCmd
 }
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioStd, err)
 	}
-	lns := core.StartServers(addrs, onWebsocket)
+	lns := core.StartServers(addrs, onWebsocket, cnf.Reuse)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)

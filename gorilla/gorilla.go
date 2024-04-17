@@ -23,8 +23,8 @@ type Config struct {
 
 	Addr string `clop:"short;long" usage:"websocket server address" default:":5555"`
 	// 打开tcp nodealy
-	OpenTcpDelay   bool `clop:"short;long" usage:"tcp delay"`
-	LimitPortRange int  `clop:"short;long" usage:"limit port range" default:"1"`
+	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
+	core.BaseCmd
 }
 
 var upgrader = websocket.Upgrader{}
@@ -98,17 +98,17 @@ func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var conf Config
-	clop.Bind(&conf)
+	var cnf Config
+	clop.Bind(&cnf)
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/", conf.echo)
+	mux.HandleFunc("/", cnf.echo)
 
-	addrs, err := config.GetFrameworkServerAddrs(config.Gorilla, conf.LimitPortRange)
+	addrs, err := config.GetFrameworkServerAddrs(config.Gorilla, cnf.LimitPortRange)
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Gorilla, err)
 	}
-	lns := core.StartServers(addrs, conf.echo)
+	lns := core.StartServers(addrs, cnf.echo, cnf.Reuse)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
