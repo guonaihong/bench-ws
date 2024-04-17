@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"go-websocket-benchmark/frameworks"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 
 	// "github.com/lesismal/nbio/log"
@@ -26,8 +26,8 @@ type Config struct {
 	UseStdMalloc   bool `clop:"short;long" usage:"use reader"`
 	ReadBufferSize int  `clop:"short;long" usage:"read buffer size" default:"1024"`
 
-	Addr           string `clop:"short;long" usage:"websocket server address" default:":4444""`
-	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
+	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	core.BaseCmd
 }
 
 func main() {
@@ -52,7 +52,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioModNonblocking, err)
 	}
-	engine := startServers(addrs)
+	engine := cnf.startServers(addrs)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -71,17 +71,17 @@ func onWebsocket(w http.ResponseWriter, r *http.Request) {
 	c.SetReadDeadline(time.Time{})
 }
 
-func startServers(addrs []string) *nbhttp.Engine {
+func (c *Config) startServers(addrs []string) *nbhttp.Engine {
 	mux := &http.ServeMux{}
 	mux.HandleFunc("/ws", onWebsocket)
-	frameworks.HandleCommon(mux)
+	core.HandleCommon(mux)
 	engine := nbhttp.NewEngine(nbhttp.Config{
 		Network:                 "tcp",
 		Addrs:                   addrs,
 		Handler:                 mux,
 		IOMod:                   nbhttp.IOModNonBlocking,
 		ReleaseWebsocketPayload: true,
-		Listen:                  frameworks.Listen,
+		Listen:                  core.Listen2(c.Reuse),
 	})
 
 	err := engine.Start()

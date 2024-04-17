@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"go-websocket-benchmark/logging"
 	"io"
 	"log"
 	"os"
@@ -40,7 +39,7 @@ func main() {
 
 	addrs, err := config.GetFrameworkServerAddrs(config.HertzStd, cnf.ReadBufferSize)
 	if err != nil {
-		logging.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.HertzStd, err)
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.HertzStd, err)
 	}
 	srvs := cnf.startServers(addrs)
 

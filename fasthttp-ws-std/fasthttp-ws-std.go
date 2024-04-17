@@ -1,7 +1,6 @@
 package main
 
 import (
-	"go-websocket-benchmark/frameworks"
 	"io"
 	"log"
 	"net"
@@ -93,7 +92,7 @@ func (c *Config) startServers(addrs []string) []net.Listener {
 			// Addr:    addr,
 			Handler: mux,
 		}
-		ln, err := frameworks.Listen("tcp", addr)
+		ln, err := core.Listen("tcp", addr, c.Reuse)
 		if err != nil {
 			log.Fatalf("Listen failed: %v", err)
 		}

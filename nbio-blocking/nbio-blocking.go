@@ -20,9 +20,8 @@ var upgrader = websocket.NewUpgrader()
 type Config struct {
 	ReadBufferSize int `clop:"short;long" usage:"read buffer size" default:"1024"`
 
-	Addr           string `clop:"short;long" usage:"websocket server address" default:":4444""`
-	LimitPortRange int    `clop:"short;long" usage:"limit port range" default:"1"`
-	Reuse          bool   `clop:"short;long" usage:"reuse port"`
+	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
+	core.BaseCmd
 }
 
 func main() {

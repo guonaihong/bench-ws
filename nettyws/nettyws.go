@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"go-websocket-benchmark/frameworks"
-	"go-websocket-benchmark/logging"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 
 	nettyws "github.com/go-netty/go-netty-ws"
 	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/core"
 	"github.com/guonaihong/clop"
 )
 
@@ -34,7 +34,7 @@ func main() {
 
 	addrs, err := config.GetFrameworkServerAddrs(config.GoNettyWs, cnf.LimitPortRange)
 	if err != nil {
-		logging.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.GoNettyWs, err)
+		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.GoNettyWs, err)
 	}
 	svrs := cnf.startServers(addrs)
 	interrupt := make(chan os.Signal, 1)
@@ -50,7 +50,7 @@ func (c *Conf) startServers(addrs []string) []*nettyws.Websocket {
 	svrs := make([]*nettyws.Websocket, 0, len(addrs))
 	for _, addr := range addrs {
 		var mux = http.NewServeMux()
-		frameworks.HandleCommon(mux)
+		core.HandleCommon(mux)
 		var ws = nettyws.NewWebsocket(
 			nettyws.WithServeMux(mux),
 			nettyws.WithBinary(),
@@ -63,7 +63,7 @@ func (c *Conf) startServers(addrs []string) []*nettyws.Websocket {
 		}
 		addr := fmt.Sprintf("%s/ws", addr)
 		go func() {
-			logging.Printf("server exit: %v", ws.Listen(addr))
+			log.Printf("server exit: %v", ws.Listen(addr))
 		}()
 	}
 	return svrs
