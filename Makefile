@@ -18,6 +18,7 @@ all:
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/hertz.mac ./wslib/hertz/hertz.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/fasthttp-ws-std.mac ./wslib/fasthttp-ws-std/fasthttp-ws-std.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/test-client.mac ./client/client.go
+	GOOS=darwin GOARCH=arm64 go build -o ./bin/web.mac ./web/web.go
 
 	# 编译linux
 	GOOS=linux GOARCH=amd64 go build -o ./bin/quickws.linux ./wslib/quickws/quickws.go
@@ -36,6 +37,7 @@ all:
 	GOOS=linux GOARCH=amd64 go build -o ./bin/hertz.linux ./wslib/hertz/hertz.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/fasthttp-ws-std.linux ./wslib/fasthttp-ws-std/fasthttp-ws-std.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/test-client.linux ./client/client.go
+	GOOS=linux GOARCH=amd64 go build -o ./bin/web.linux ./web/web.go
 
 	# 编译freebsd
 	GOOS=freebsd GOARCH=amd64 go build -o ./bin/quickws.freebsd ./wslib/quickws/quickws.go
@@ -54,6 +56,8 @@ all:
 	GOOS=freebsd GOARCH=amd64 go build -o ./bin/hertz.freebsd ./wslib/hertz/hertz.go
 	GOOS=freebsd GOARCH=amd64 go build -o ./bin/fasthttp-ws-std.freebsd ./wslib/fasthttp-ws-std/fasthttp-ws-std.go
 	GOOS=freebsd GOARCH=amd64 go build -o ./bin/test-client.freebsd ./client/client.go
+	GOOS=freebsd GOARCH=amd64 go build -o ./bin/web.freebsd ./web/web.go
+
 clean:
 	rm *.linux
 	rm *.mac
