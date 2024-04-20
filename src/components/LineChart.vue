@@ -1,10 +1,25 @@
 <template>
-  <div>
-    <div v-for="(chartData, index) in chartDataList" :key="index" class="chart-container">
+  <div class="chart-wrapper">
+    <div class="chart-container" v-for="(chartData, index) in chartDataList" :key="index">
       <canvas :ref="(el) => chartRefs[index] = el"></canvas>
     </div>
   </div>
 </template>
+
+<style scoped>
+.chart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+}
+
+.chart-container {
+  width: 900px;
+  margin-bottom: 20px;
+}
+</style>
 
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
@@ -36,6 +51,12 @@ function renderCharts() {
     const canvas = chartRefs.value[index];
     if (canvas && canvas.getContext) {
       const ctx = canvas.getContext('2d');
+      // if (ctx._chart) {
+      //   Chart.destroy(ctx._chart);
+      // }
+      if (ctx._chart) {
+        ctx._chart.destroy();
+      }
       new Chart(ctx, {
         type: 'line',
         data: {
@@ -47,6 +68,12 @@ function renderCharts() {
           })),
         },
         options: {
+          plugins: {
+            title: {
+              display: true,
+              text: 'Chart Title',
+            },
+          },
           scales: {
             y: {
               beginAtZero: true
