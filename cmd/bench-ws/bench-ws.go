@@ -134,7 +134,6 @@ func (client *Client) runTest(currTotal int, data chan struct{}) {
 func (c *Client) producer(data chan struct{}) {
 	defer func() {
 		close(data)
-		c.cancel(errors.New("producer done"))
 
 		if c.OpenTmpResult {
 			fmt.Printf("bye bye producer")
@@ -170,6 +169,7 @@ func (c *Client) consumer(data chan struct{}) {
 	wg.Add(c.Concurrency)
 	defer func() {
 		wg.Wait()
+		c.cancel(errors.New("wait all consumer done"))
 		if !c.JSON {
 			for i, v := range c.result {
 				fmt.Printf("%ds:%d/s ", i+1, v)
@@ -251,7 +251,16 @@ func main() {
 
 	now := time.Now()
 	c.ctx, c.cancel = context.WithCancelCause(context.Background())
-	go c.producer(data)
-	go c.Run(now)
+	var wg sync.WaitGroup
+	wg.Add(2)
+	defer wg.Wait()
+	go func() {
+		defer wg.Done()
+		c.producer(data)
+	}()
+	go func() {
+		defer wg.Done()
+		c.Run(now)
+	}()
 	c.consumer(data)
 }

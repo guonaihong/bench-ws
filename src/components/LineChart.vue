@@ -9,14 +9,18 @@
 <style scoped>
 .chart-wrapper {
   display: flex;
+  margin-left: 10%;
+  flex-wrap: wrap;
+  /* 添加 flex-wrap 属性，使容器换行显示 */
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 900px;
   height: 100vh;
 }
 
 .chart-container {
-  width: 900px;
+  width: 100%;
+  /* 实现居中对齐 */
   margin-bottom: 20px;
 }
 </style>
@@ -31,7 +35,7 @@ const chartRefs = ref([]);
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:8082/greatws-quickws');
+    const response = await axios.get('http://localhost:8082/chartData');
     chartDataList.value = response.data;
     await nextTick();
     renderCharts();
@@ -71,7 +75,7 @@ function renderCharts() {
           plugins: {
             title: {
               display: true,
-              text: 'Chart Title',
+              text: data.title,
             },
           },
           scales: {

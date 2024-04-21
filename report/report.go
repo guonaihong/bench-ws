@@ -3,7 +3,7 @@ package report
 type ChartData struct {
 	Labels   []string  `json:"labels"`   // x轴的标签
 	Datasets []Dataset `json:"datasets"` // y数据集
-	Title    string    //折线图的标题
+	Title    string    `json:"title"`    //折线图的标题
 }
 
 type Dataset struct {
