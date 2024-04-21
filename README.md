@@ -13,7 +13,7 @@
 * 启动客户端的命令
 
 ```
-./bin/test-client.linux --close-check -c 10000 -t 1000000000 -w "ws://127.0.0.1:9001/"
+./bin/bench-ws.linux --close-check -c 10000 -t 1000000000 -w "ws://127.0.0.1:9001/"
 ```
 
 # 流量压测

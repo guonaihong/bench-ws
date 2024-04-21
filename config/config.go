@@ -127,6 +127,9 @@ func GenerateAddrs(WSAddr, Name string) []string {
 		}
 	}
 
+	if len(Addrs) == 0 {
+		return []string{WSAddr}
+	}
 	return Addrs
 }
 
@@ -179,7 +182,10 @@ func GetFrameworkServerAddrs(framework string, limit int) ([]string, error) {
 	if limit > 0 {
 		n = min(n, limit)
 	}
-	return addrs[:n], nil
+	// framework的端口范围是
+	addrs = addrs[:n]
+	fmt.Printf("%s, %s-%s\n", framework, addrs[0], addrs[len(addrs)-1])
+	return addrs, nil
 }
 
 func GetFrameworkPidServerAddrs(framework string) (string, error) {

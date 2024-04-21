@@ -22,7 +22,7 @@ func main() {
 		c.Next()
 	})
 	// 定义路由处理程序
-	r.GET("/chartData", func(c *gin.Context) {
+	r.GET("/greatws-quickws", func(c *gin.Context) {
 		// 示例数据
 		chartData := []report.ChartData{
 			{

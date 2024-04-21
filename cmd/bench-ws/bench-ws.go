@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -12,42 +15,36 @@ import (
 
 	"github.com/antlabs/quickws"
 	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/report"
 	"github.com/guonaihong/clop"
 )
 
 // https://github.com/snapview/tokio-tungstenite/blob/master/examples/autobahn-client.rs
 
 type Client struct {
-	WSAddr string `clop:"short;long" usage:"websocket server address, eg: ws://host:port or ws://host:minport-maxport"`
-	Name   string `clop:"short;long" usage:"server name"`
-	// 运行总次数
-	Total int `clop:"short;long" usage:"total" default:"100"`
-
-	PayloadSize int `clop:"short;long" usage:"payload size" default:"1024"`
-	// 连接数
-	Conns int `clop:"long" usage:"conns" default:"10000"`
-	// 协程数
-	Concurrency int `clop:"short;long" usage:"concurrency" default:"1000"`
-
-	// 测试时间
-	Duration time.Duration `clop:"short;long" usage:"duration"`
-
-	OpenCheck bool `clop:"long" usage:"open check"`
-
-	OpenTmpResult bool `clop:"long" usage:"open tmp result"`
-
-	Text string `clop:"long" usage:"send text"`
-
-	SaveErr bool `clop:"long" usage:"save error log"`
-
-	// 使用限制端口范围, 默认1， -1表示不限制
-	LimitPortRange int `clop:"short;long" usage:"limit port range" default:"1"`
+	WSAddr         string        `clop:"short;long" usage:"WebSocket server address (e.g., ws://host:port or ws://host:minport-maxport)" default:""`
+	Name           string        `clop:"short;long" usage:"Server name" default:""`
+	Label          string        `clop:"long" usage:"Title of the chart for the line graph" default:""`
+	Total          int           `clop:"short;long" usage:"Total number of runs" default:"100"`
+	PayloadSize    int           `clop:"short;long" usage:"Size of the payload" default:"1024"`
+	Conns          int           `clop:"long" usage:"Number of connections" default:"10000"`
+	Concurrency    int           `clop:"short;long" usage:"Number of concurrent goroutines" default:"1000"`
+	Duration       time.Duration `clop:"short;long" usage:"Duration of the test"`
+	OpenCheck      bool          `clop:"long" usage:"Perform open check"`
+	OpenTmpResult  bool          `clop:"long" usage:"Display temporary result"`
+	JSON           bool          `clop:"long" usage:"Output JSON result"`
+	Text           string        `clop:"long" usage:"Text to send"`
+	SaveErr        bool          `clop:"long" usage:"Save error log"`
+	LimitPortRange int           `clop:"short;long" usage:"Limit port range (1 for limited, -1 for unlimited)" default:"1"`
 	mu             sync.Mutex
 
 	result []int
 
 	addrs []string
 	index int64
+
+	ctx    context.Context
+	cancel context.CancelCauseFunc
 }
 
 func (c *Client) getAddrs() string {
@@ -71,13 +68,21 @@ type echoHandler struct {
 	*Client
 }
 
+// OnOpen is a callback function that is called when a WebSocket connection
+// is established. It sends a binary message containing the payload to the
+// server. It also increments the `sendCount` atomic integer.
+//
+// Parameters:
+//   - c: A pointer to a `quickws.Conn` object representing the WebSocket
+//     connection.
 func (e *echoHandler) OnOpen(c *quickws.Conn) {
+	// Send a binary message containing the payload to the server.
 	c.WriteMessage(quickws.Binary, payload)
+	// Increment the `sendCount` atomic integer.
 	atomic.AddInt64(&sendCount, 1)
 }
 
 func (e *echoHandler) OnMessage(c *quickws.Conn, op quickws.Opcode, msg []byte) {
-	// fmt.Println("OnMessage:", c, op, msg)
 	atomic.AddInt64(&sendCount, 1)
 	if op == quickws.Text || op == quickws.Binary {
 		c.WriteMessage(op, payload)
@@ -109,6 +114,7 @@ func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
 }
 
 func (client *Client) runTest(currTotal int, data chan struct{}) {
+	curAddr := client.getAddrs()
 	c, err := quickws.Dial(client.getAddrs(),
 		quickws.WithClientReplyPing(),
 		// quickws.WithClientCompression(),
@@ -117,7 +123,7 @@ func (client *Client) runTest(currTotal int, data chan struct{}) {
 		// quickws.WithClientCallback(&echoHandler{done: done}),
 	)
 	if err != nil {
-		fmt.Println("Dial fail:", err)
+		fmt.Printf("Dial %s, fail:%v\n", curAddr, err)
 		return
 	}
 
@@ -128,6 +134,8 @@ func (client *Client) runTest(currTotal int, data chan struct{}) {
 func (c *Client) producer(data chan struct{}) {
 	defer func() {
 		close(data)
+		c.cancel(errors.New("producer done"))
+
 		if c.OpenTmpResult {
 			fmt.Printf("bye bye producer")
 		}
@@ -162,8 +170,10 @@ func (c *Client) consumer(data chan struct{}) {
 	wg.Add(c.Concurrency)
 	defer func() {
 		wg.Wait()
-		for i, v := range c.result {
-			fmt.Printf("%ds:%d/s ", i+1, v)
+		if !c.JSON {
+			for i, v := range c.result {
+				fmt.Printf("%ds:%d/s ", i+1, v)
+			}
 		}
 		fmt.Printf("\n")
 	}()
@@ -196,9 +206,29 @@ func (c *Client) printTps(now time.Time, sec *int) {
 }
 
 func (c *Client) Run(now time.Time) {
-	for sec := 1; ; sec++ {
-		time.Sleep(time.Second)
-		c.printTps(now, &sec)
+	nw := time.NewTicker(time.Second)
+	sec := 1
+	for {
+		select {
+		case <-nw.C:
+			c.printTps(now, &sec)
+			sec++
+			nw.Reset(time.Second)
+		case <-c.ctx.Done():
+			if c.JSON {
+				var d report.Dataset
+				d.Label = c.Label
+				d.Data = c.result
+				d.Tension = 0.1
+				all, err := json.Marshal(d)
+				if err != nil {
+					panic(err)
+				}
+
+				os.Stdout.Write(all)
+			}
+			return
+		}
 	}
 }
 
@@ -213,13 +243,14 @@ func main() {
 	}
 
 	if c.WSAddr == "" && c.Name == "" {
-		fmt.Printf("wsaddr or name is required, ./test-client -h\n")
+		fmt.Printf("wsaddr or name is required, ./bench-ws -h\n")
 		os.Exit(1)
 	}
 	c.addrs = config.GenerateAddrs(c.WSAddr, c.Name)
 	data := make(chan struct{}, c.Total)
 
 	now := time.Now()
+	c.ctx, c.cancel = context.WithCancelCause(context.Background())
 	go c.producer(data)
 	go c.Run(now)
 	c.consumer(data)

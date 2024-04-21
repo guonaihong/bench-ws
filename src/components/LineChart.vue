@@ -31,7 +31,7 @@ const chartRefs = ref([]);
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:8082/chartData');
+    const response = await axios.get('http://localhost:8082/greatws-quickws');
     chartDataList.value = response.data;
     await nextTick();
     renderCharts();

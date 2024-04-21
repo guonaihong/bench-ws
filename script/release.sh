@@ -21,7 +21,7 @@ function tps_greatws_io() {
     ./greatws.linux -r &>/dev/null &
     WS_PID=$!
     sleep 1
-    ./test-client.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
+    ./bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
     kill $WS_PID
 }
 function tps_greatws_stream2() {
@@ -31,7 +31,7 @@ function tps_greatws_stream2() {
     ./greatws.linux &>/dev/null &
     WS_PID=$!
     sleep 1
-    ./test-client.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
+    ./bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
     kill $WS_PID
 }
 
@@ -42,7 +42,7 @@ function tps_greatws_unstream() {
     ./greatws.linux -u &>/dev/null &
     WS_PID=$!
     sleep 1
-    ./test-client.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
+    ./bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
     kill $WS_PID
 }
 
@@ -53,7 +53,7 @@ function tps_greatws_stream() {
     ./greatws.linux -s &>/dev/null &
     WS_PID=$!
     sleep 1
-    ./test-client.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
+    ./bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
     kill $WS_PID
 }
 
@@ -64,7 +64,7 @@ function tps_quickws() {
     ./quickws.linux &>/dev/null &
     WS_PID=$!
     sleep 1
-    ./test-client.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
+    ./bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:9001/autobahn" --open-tmp-result --conns 10000
     kill $WS_PID
 }
 

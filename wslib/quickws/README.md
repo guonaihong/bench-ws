@@ -27,5 +27,5 @@ taskset -c 0-7 ./quickws.linux  -l -1
 * 2.2 启动客户端
 
 ```console
-./test-client.linux -c 10000 -w "ws://127.0.0.1:23001-23050/ws" -c 10000 -d 10s --open-tmp-result
+./bench-ws.linux -c 10000 -w "ws://127.0.0.1:23001-23050/ws" -c 10000 -d 10s --open-tmp-result
 ```
