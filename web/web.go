@@ -54,6 +54,7 @@ func main() {
 					return
 				}
 
+				fmt.Printf("first dir:%s\n", dir2Str)
 				maxNum := 0
 				for _, d2 := range dir2 {
 					curName := path.Clean(dir2Str + "/" + d2.Name())
@@ -66,7 +67,7 @@ func main() {
 					var dataset report.Dataset
 					err = json.Unmarshal(all, &dataset)
 					if err != nil {
-						fmt.Printf("json.Unmarshal:%v, dir(%s), name(%s)\n", err, dir2Str, d2.Name())
+						fmt.Printf("json.Unmarshal:%v, dir(%s), name(%s), filename(%s)\n", err, dir2Str, d2.Name(), curName)
 						return
 					}
 					maxNum = max(maxNum, len(dataset.Data))
