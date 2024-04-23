@@ -3,21 +3,29 @@
 WS_PID=0
 DEFAULT_DIR="$1"
 BIN="./bin"
-if [ -z $DEFAULT_DIR ];then
+TEST_SEC="10s"
+if [ -z $DEFAULT_DIR ]; then
     DEFAULT_DIR="./output/greatws-quickws"
 fi
 
 EXE="linux"
-if [ `uname -s` == "Darwin" ];then
+MAKE_TARGET="build-linux"
+
+if [ `uname -s` == "Darwin" ]; then
     EXE="mac"
+    MAKE_TARGET="build-mac"
+fi
+
+if [ `uname -s` == "MINGW"* ]; then
+    EXE="windows"
+    MAKE_TARGET="build-windows"
 fi
 
 function ctrl_c_handler() {
     echo "Ctrl+C pressed. Exiting gracefully."
-    if [ $WS_PID -eq 0 ];then
-        exit 0
+    if [ $WS_PID -ne 0 ]; then
+        kill $WS_PID
     fi 
-    kill $WS_PID
     exit 0
 }
 
@@ -28,144 +36,104 @@ function kill_server() {
 
 trap ctrl_c_handler SIGINT
 
-function tps_greatws_io() {
-    # test tps
-    echo "## TPS scenario testing"
+function build_executables() {
+    echo "## Building executables for $EXE"
+    make $MAKE_TARGET
+}
 
-    echo "#### greatws runs on I/O goroutines-greatws bind mode"
+function run_test() {
+    local BIN_NAME="$1"
+    local WS_ARGS="$2"
+    local FILE_SUFFIX="$3"
+    local address="$4"
+
     kill_server
-    $BIN/greatws.linux -r &>/dev/null &
+    sleep 1
+    $BIN/$BIN_NAME.$EXE $WS_ARGS &>/dev/null &
     WS_PID=$!
     sleep 1
-    FILE_NAME="greatws-io-event"
-    $BIN/bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:23001/ws" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
+    FILE_NAME="$BIN_NAME-$FILE_SUFFIX"
+    $BIN/bench-ws.$EXE -c 10000 -d $TEST_SEC -w "ws://127.0.0.1:$address/ws" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
     kill $WS_PID
 }
+
+function tps_greatws_io() {
+    echo "## TPS scenario testing"
+    echo "#### greatws runs on I/O goroutines-greatws bind mode"
+    run_test "greatws" "-r" "io-event" "24001"
+}
+
 function tps_greatws_stream2() {
     echo "#### greatws runs on business goroutines"
-    kill_server
-    sleep 1
-    $BIN/greatws.linux &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    FILE_NAME="greatws-execlist"
-    $BIN/bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:23001/ws" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
-    kill $WS_PID
+    run_test "greatws" "execlist" "24001"
 }
 
 function tps_greatws_unstream() {
     echo "#### greatws runs on business goroutines(unstream)"
-    kill_server
-    sleep 1
-    $BIN/greatws.linux -u &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    FILE_NAME="greatws-unstream"
-    $BIN/bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:23001/ws" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
-    kill $WS_PID
+    run_test "greatws" "-u" "unstream" "24001"
 }
 
 function tps_greatws_stream() {
     echo "#### greatws uses one Goroutine per connection"
-    kill_server
-    sleep 1
-    $BIN/greatws.linux -s &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    FILE_NAME="greatws-stream"
-    $BIN/bench-ws.linux -c 10000 -d 60s -w "ws://127.0.0.1:23001/ws" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
-    kill $WS_PID
+    run_test "greatws" "-s" "stream" "24001"
 }
 
 function tps_quickws() {
     echo "#### quickws"
-    kill_server
-    sleep 1
-    "$BIN/quickws.linux"  &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    FILE_NAME="quickws"
-    "$BIN/bench-ws.linux" -c 10000 -d 60s -w "ws://127.0.0.1:23001/ws" --conns 10000 --JSON --label $FILE_NAME  &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
-    kill $WS_PID
+    run_test "quickws" "" "quickws" "23001"
 }
 
 function tps_quickws_mini() {
-    pkill quickws 2>/dev/null
+    kill_server
     sleep 1
-    ./bin/"quickws.$EXE" -l -1 &>/dev/null &
+    $BIN/quickws.$EXE -l -1 &>/dev/null &
     WS_PID=$!
     sleep 1
     FILE_NAME="quickws_mini"
-    #./bin/"bench-ws.$EXE" -c 100 -d 10s -w "ws://127.0.0.1:23001/ws" --conns 100 --JSON --label "$FILE_NAME"  --open-tmp-result
-    ./bin/"bench-ws.$EXE" -c 100 -d 10s -w "ws://127.0.0.1:23001/ws" --conns 100 --JSON --label "$FILE_NAME" &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
+    $BIN/bench-ws.$EXE -c 100 -d 10s -w "ws://127.0.0.1:23001/ws" --conns 100 --JSON --label "$FILE_NAME" &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
     kill $WS_PID
 }
 
 function tps_test_debug() {
-    if [ ! -d "$DEFAULT_DIR" ];then
+    if [ ! -d "$DEFAULT_DIR" ]; then
         mkdir -p $DEFAULT_DIR
     fi
 
-    # tps_quickws_mini
     tps_greatws_stream2
 }
 
 function tps_test() {
-    if [ ! -d "$DEFAULT_DIR" ];then
+    if [ ! -d "$DEFAULT_DIR" ]; then
         mkdir -p $DEFAULT_DIR
     fi
 
-    tps_greatws_io
-    tps_greatws_stream2
-    tps_greatws_unstream
-    tps_greatws_stream
+    build_executables
+
+    #tps_greatws_io
+    #tps_greatws_stream2
+    #tps_greatws_unstream
+    #tps_greatws_stream
     tps_quickws
 }
 
 function traffic_test() {
-    # test 流量
     echo "## traffic scenario testing"
-    echo "#### greatws runs on business goroutines"
-    pkill greatws 2>/dev/null
-    sleep 1 #防止进程还存在
-    ./greatws.linux &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f ./testdata/1K.txt --ws 127.0.0.1:9001/
-    kill $WS_PID
 
-    echo "#### greatws runs on I/O goroutines"
-    pkill greatws 2>/dev/null
-    sleep 1 #防止进程还存在
-    ./greatws.linux -r &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f ./testdata/1K.txt --ws 127.0.0.1:9001/
-    kill $WS_PID
-
-    echo "#### greatws runs on business goroutines unstream"
-    pkill greatws 2>/dev/null
-    sleep 1 #防止进程还存在
-    ./greatws.linux -u &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f ./testdata/1K.txt --ws 127.0.0.1:9001/
-    kill $WS_PID
-
-    echo "#### greatws uses one Goroutine per connection"
-    pkill greatws 2>/dev/null
-    sleep 1 #防止进程还存在
-    ./greatws.linux -s &>/dev/null &
-    WS_PID=$!
-    sleep 1
-    tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f ./testdata/1K.txt --ws 127.0.0.1:9001/
-    kill $WS_PID
+    for WS_TYPE in "" "-r" "-u" "-s"; do
+        echo "#### greatws runs on business goroutines$([[ ! -z $WS_TYPE ]] && echo "($WS_TYPE)")"
+        kill_server
+        sleep 1
+        $BIN/greatws.$EXE $WS_TYPE &>/dev/null &
+        WS_PID=$!
+        sleep 1
+        tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f ./testdata/1K.txt --ws 127.0.0.1:9001/
+        kill $WS_PID
+    done
 
     echo "#### quickws"
-    pkill greatws 2>/dev/null
-    pkill quickws 2>/dev/null
-    sleep 1 #防止进程还存在
-    ./quickws.linux &>/dev/null &
+    kill_server
+    sleep 1
+    $BIN/quickws.$EXE &>/dev/null &
     WS_PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f ./testdata/1K.txt --ws 127.0.0.1:9001/
@@ -177,8 +145,4 @@ function build() {
     make
 }
 
-#tps_test_debug
-#build
 tps_test
-#traffic_test
-

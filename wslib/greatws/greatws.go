@@ -173,7 +173,7 @@ func main() {
 		}
 	}()
 
-	addrs, err := config.GetFrameworkServerAddrs(config.Quickws, cnf.LimitPortRange)
+	addrs, err := config.GetFrameworkServerAddrs(config.Greatws, cnf.LimitPortRange)
 	if err != nil {
 		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Quickws, err)
 	}
