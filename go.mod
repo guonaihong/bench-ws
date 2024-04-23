@@ -17,9 +17,9 @@ require (
 	github.com/guonaihong/clop v0.2.12
 	github.com/hertz-contrib/pprof v0.1.2
 	github.com/hertz-contrib/websocket v0.0.1
-	github.com/lesismal/nbio v1.5.3
+	github.com/lesismal/nbio v1.5.8
 	github.com/libp2p/go-reuseport v0.4.0
-	github.com/lxzan/gws v1.8.0
+	github.com/lxzan/gws v1.8.2
 )
 
 require (
@@ -52,7 +52,7 @@ require (
 	github.com/klauspost/compress v1.17.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
-	github.com/lesismal/llib v1.1.12 // indirect
+	github.com/lesismal/llib v1.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
