@@ -8,16 +8,26 @@ BIN="./bin"
 EXE="linux"
 DEFAULT_DIR="./output/all"
 
-if [ ! -d "$DEFAULT_DIR" ]; then
+function create_dir() {
+    if [ ! -d "$DEFAULT_DIR" ]; then
         mkdir -p $DEFAULT_DIR
-fi
+    fi
+}
 
-# Determine the operating system type and set the EXE variable accordingly
-if [ "$(uname -s)" == "Darwin" ]; then
-    EXE="mac"
-elif [ "$(uname -s)" == "FreeBSD" ]; then
-    EXE="freebsd"
-fi
+function clean_old_result() {
+    if [ -d "$DEFAULT_DIR" ]; then
+        rm -rf $DEFAULT_DIR
+    fi
+}
+
+function get_exe_name() {
+    # Determine the operating system type and set the EXE variable accordingly
+    if [ "$(uname -s)" == "Darwin" ]; then
+        EXE="mac"
+    elif [ "$(uname -s)" == "FreeBSD" ]; then
+        EXE="freebsd"
+    fi
+}
 
 # Function to kill all running WebSocket servers
 function kill_all_servers() {
@@ -51,22 +61,29 @@ function run_test() {
     sleep "$SLEEP_SEC"
 }
 
-# Run tests for each WebSocket server
-run_test "greatws" "24001" "1"
-run_test "quickws" "23001" "0"
-run_test "quickws" "23001" "1"
-run_test "gws"  "13001" "2"
-run_test "gws-std" "14001" "3"
-run_test "gorilla" "12001" "4.1" "-u"
-run_test "gorilla" "12001" "4.2"
-run_test "nettyws" "21001" "5"
-run_test "gobwas" "11001" "6"
-run_test "nbio-std" "20001" "7"
-run_test "nbio-nonblocking" "19001" "8"
-run_test "nbio-blocking" "17001" "9"
-run_test "nbio-mixed" "18001" "10"
-run_test "hertz" "15001" "11"
-run_test "hertz-std" "16001" "12"
-run_test "fasthttp-ws-std" "10001" "13"
+function run_all_wslib() {
+    # Run tests for each WebSocket server
+    run_test "greatws" "24001" "1"
+    run_test "quickws" "23001" "0"
+    run_test "quickws" "23001" "1"
+    run_test "gws"  "13001" "2"
+    run_test "gws-std" "14001" "3"
+    run_test "gorilla" "12001" "4.1" "-u"
+    run_test "gorilla" "12001" "4.2"
+    run_test "nettyws" "21001" "5"
+    run_test "gobwas" "11001" "6"
+    run_test "nbio-std" "20001" "7"
+    run_test "nbio-nonblocking" "19001" "8"
+    run_test "nbio-blocking" "17001" "9"
+    run_test "nbio-mixed" "18001" "10"
+    run_test "hertz" "15001" "11"
+    run_test "hertz-std" "16001" "12"
+    run_test "fasthttp-ws-std" "10001" "13"
+}
+
+clean_old_result
+create_dir
+get_exe_name
+run_all_wslib
 
 ./script/release.sh
