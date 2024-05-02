@@ -1,6 +1,6 @@
 <template>
   <div class="chart-wrapper">
-    <div class="chart-container" v-for="(chartData, index) in chartDataList" :key="index">
+    <div v-for="(chartData, index) in chartDataList" :key="index" class="chart-container">
       <canvas :ref="(el) => chartRefs[index] = el"></canvas>
     </div>
   </div>
@@ -11,7 +11,6 @@
   display: flex;
   margin-left: 10%;
   flex-wrap: wrap;
-  /* 添加 flex-wrap 属性，使容器换行显示 */
   justify-content: center;
   align-items: center;
   width: 900px;
@@ -20,7 +19,6 @@
 
 .chart-container {
   width: 100%;
-  /* 实现居中对齐 */
   margin-bottom: 20px;
 }
 </style>
@@ -64,20 +62,42 @@ function renderCharts() {
     const canvas = chartRefs.value[index];
     if (canvas && canvas.getContext) {
       const ctx = canvas.getContext('2d');
-      // if (ctx._chart) {
-      //   Chart.destroy(ctx._chart);
-      // }
       if (ctx._chart) {
         ctx._chart.destroy();
       }
+      // Render line chart
+      // new Chart(ctx, {
+      //   type: 'line',
+      //   data: {
+      //     labels: data.labels,
+      //     datasets: data.datasets.map((dataset) => ({
+      //       ...dataset,
+      //       borderColor: dataset.borderColor || getRandomColor(),
+      //       fill: true,
+      //     })),
+      //   },
+      //   options: {
+      //     plugins: {
+      //       title: {
+      //         display: true,
+      //         text: data.title,
+      //       },
+      //     },
+      //     scales: {
+      //       y: {
+      //         beginAtZero: true
+      //       }
+      //     }
+      //   }
+      // });
+      // Render bar chart
       new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
           labels: data.labels,
           datasets: data.datasets.map((dataset) => ({
             ...dataset,
-            // borderColor: dataset.borderColor||randomRGBA(),
-             borderColor: dataset.borderColor||getRandomColor(),
+            backgroundColor: dataset.backgroundColor || getRandomColor(),
             fill: true,
           })),
         },
@@ -100,7 +120,6 @@ function renderCharts() {
 }
 
 function getRandomColor() {
-  // 生成十六进制颜色值
   const randomColor = () => {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -110,16 +129,14 @@ function getRandomColor() {
     return color;
   };
 
-  // 生成rgba颜色值
   const randomRGBA = () => {
     const r = Math.floor(Math.random() * 256);
     const g = Math.floor(Math.random() * 256);
     const b = Math.floor(Math.random() * 256);
-    const a = Math.random().toFixed(2); // 随机生成透明度
+    const a = Math.random().toFixed(2);
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   };
 
-  // 从上面两个函数中随机选择一个
   const colorFuncs = [randomColor, randomRGBA];
   return colorFuncs[Math.floor(Math.random() * colorFuncs.length)]();
 }

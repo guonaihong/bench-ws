@@ -3,6 +3,9 @@ all: build-linux build-mac build-freebsd
         echo mkdir "./bin"; \
     fi
 
+build-web:
+	GOOS=linux GOARCH=amd64 go build -o ./bin/web.linux ./web/web.go
+
 build-linux:
 	# 编译linux
 	GOOS=linux GOARCH=amd64 go build -o ./bin/quickws.linux ./wslib/quickws/quickws.go

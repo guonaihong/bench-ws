@@ -2,6 +2,11 @@
 
 压测websocket(quickws)的仓库
 
+# 如何运行界面测试
+```
+npm install
+npm run serve
+```
 # tps压测
 
 * 启动服务端的命令

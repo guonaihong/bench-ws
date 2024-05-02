@@ -109,10 +109,10 @@ function tps_test() {
 
     build_executables
 
-    #tps_greatws_io
-    #tps_greatws_stream2
-    #tps_greatws_unstream
-    #tps_greatws_stream
+    tps_greatws_io
+    tps_greatws_stream2
+    tps_greatws_unstream
+    tps_greatws_stream
     tps_quickws
 }
 
