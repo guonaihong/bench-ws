@@ -65,7 +65,7 @@ function tps_greatws_io() {
 
 function tps_greatws_stream2() {
     echo "#### greatws runs on business goroutines"
-    run_test "greatws" "execlist" "24001"
+    run_test "greatws" "" "execlist" "24001"
 }
 
 function tps_greatws_unstream() {
@@ -103,9 +103,14 @@ function tps_test_debug() {
 }
 
 function tps_test() {
+    if [ -d "$DEFAULT_DIR" ];then
+        rm -rf "$DEFAULT_DIR"
+    fi
+
     if [ ! -d "$DEFAULT_DIR" ]; then
         mkdir -p $DEFAULT_DIR
     fi
+
 
     build_executables
 
@@ -138,11 +143,6 @@ function traffic_test() {
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f ./testdata/1K.txt --ws 127.0.0.1:9001/
     kill $WS_PID
-}
-
-function build() {
-    echo "## build"
-    make
 }
 
 tps_test
