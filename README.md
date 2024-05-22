@@ -12,7 +12,7 @@ nvm是一个Node.js版本管理工具，它允许你安装和使用不同版本�
 安装nvm：
 
 ```bash
-curl -o- <https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh> | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 ```
 
 重新加载你的终端或运行以下命令来使nvm生效：
@@ -50,13 +50,13 @@ npm install -g yarn
 
 * 启动服务端的命令
 
-```
+```bash
 ./bin/quickws.linux
 ```
 
 * 启动客户端的命令
 
-```
+```bash
 ./bin/bench-ws.linux --close-check -c 10000 -t 1000000000 -w "ws://127.0.0.1:9001/"
 ```
 
@@ -64,13 +64,13 @@ npm install -g yarn
 
 * 启动服务端的命令
 
-```
+```bash
 ./bin/quickws.linux -o -u
 ```
 
 * 启动客户端的命令
 
-```
+```bash
 tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
 ```
 
