@@ -108,12 +108,15 @@ func main() {
 		windowsSize = float32(cnf.WindowsMultipleTimesPayloadSize)
 	}
 
+	initCount, minCount, maxCount := 80, 10, cnf.MaxGoNum
 	evOpts := []greatws.EvOption{
 		greatws.WithEventLoops(cnf.EventNum),
-		greatws.WithBusinessGoNum(80, 10, cnf.MaxGoNum),
+		greatws.WithBusinessGoNum(initCount, minCount, maxCount),
 		greatws.WithMaxEventNum(1000),
 		greatws.WithLogLevel(slog.LevelDebug),
 	}
+
+	fmt.Printf("init:%d, min:%d, max:%d\n", initCount, minCount, maxCount)
 	if cnf.TrafficMode {
 		// evOpts = append(evOpts, greatws.WithBusinessGoTrafficMode())
 	}

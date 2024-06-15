@@ -19,7 +19,7 @@ require (
 	github.com/hertz-contrib/websocket v0.0.1
 	github.com/lesismal/nbio v1.5.8
 	github.com/libp2p/go-reuseport v0.4.0
-	github.com/lxzan/gws v1.8.2
+	github.com/lxzan/gws v1.8.3
 )
 
 require (

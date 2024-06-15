@@ -154,11 +154,17 @@ func (c *Client) producer(data chan struct{}) {
 					}
 				}
 			case data <- struct{}{}:
+			case <-c.ctx.Done():
+				return
 			}
 		}
 	} else {
 		for i := 0; i < c.Total; i++ {
-			data <- struct{}{}
+			select {
+			case data <- struct{}{}:
+			case <-c.ctx.Done():
+				return
+			}
 		}
 	}
 }
@@ -263,4 +269,5 @@ func main() {
 		c.Run(now)
 	}()
 	c.consumer(data)
+	c.cancel(nil)
 }
