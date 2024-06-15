@@ -28,9 +28,8 @@ type Config struct {
 	// 打开tcp nodealy
 	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 	// 使用stream模式, 一个连接对应一个go程
-	StreamMode   bool   `clop:"short;long" usage:"use stream"`
-	UnStreamMode bool   `clop:"short;long" usage:"use stream"`
-	CustomMode   string `clop:"short;long" usage:"custom mode"`
+	StreamMode bool   `clop:"short;long" usage:"use stream"`
+	CustomMode string `clop:"short;long" usage:"custom mode"`
 	// 使用go程绑定模式, greatws默认模式
 	GoRoutineBindMode bool `clop:"short;long" usage:"use go routine bind"`
 	// 开启对流量压测友好的模式
@@ -41,6 +40,7 @@ type Config struct {
 	EventNum int `clop:"long" usage:"event number"`
 	MaxGoNum int `clop:"long" usage:"max go number" default:"80"`
 
+	ProcessSleep time.Duration `clop:"long" usage:"process sleep"`
 	core.BaseCmd
 	m *greatws.MultiEventLoop
 }
@@ -66,6 +66,9 @@ var (
 )
 
 func (e *echoHandler) OnMessage(c *greatws.Conn, op greatws.Opcode, msg []byte) {
+	if e.ProcessSleep > 0 {
+		time.Sleep(e.ProcessSleep)
+	}
 	// fmt.Printf("OnMessage: %s, len(%d), op:%d\n", msg, len(msg), op)
 	// if err := c.WriteTimeout(op, msg, 3*time.Second); err != nil {
 	// 	fmt.Println("write fail:", err)
@@ -79,11 +82,11 @@ func (e *echoHandler) OnMessage(c *greatws.Conn, op greatws.Opcode, msg []byte) 
 }
 
 func (e *echoHandler) OnClose(c *greatws.Conn, err error) {
-	// errMsg := ""
-	// if err != nil {
-	// 	errMsg = err.Error()
-	// }
-	// slog.Error("OnClose:", errMsg)
+	errMsg := "nil"
+	if err != nil {
+		errMsg = err.Error()
+	}
+	slog.Error("OnClose:", "err", errMsg)
 }
 
 func (h *Config) echo(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +116,7 @@ func main() {
 		greatws.WithEventLoops(cnf.EventNum),
 		greatws.WithBusinessGoNum(initCount, minCount, maxCount),
 		greatws.WithMaxEventNum(1000),
-		greatws.WithLogLevel(slog.LevelDebug),
+		greatws.WithLogLevel(slog.LevelError),
 	}
 
 	fmt.Printf("init:%d, min:%d, max:%d\n", initCount, minCount, maxCount)
@@ -131,9 +134,9 @@ func main() {
 		greatws.WithServerReplyPing(),
 		// greatws.WithServerDecompression(),
 		greatws.WithServerIgnorePong(),
-		greatws.WithServerCallback(&echoHandler{}),
+		greatws.WithServerCallback(&echoHandler{Config: &cnf}),
 		// greatws.WithServerEnableUTF8Check(),
-		greatws.WithServerReadTimeout(5 * time.Second),
+		// greatws.WithServerReadTimeout(60 * time.Second),
 		greatws.WithServerMultiEventLoop(cnf.m),
 
 		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
@@ -145,8 +148,6 @@ func main() {
 	case cnf.GoRoutineBindMode:
 	case cnf.StreamMode:
 		opts = append(opts, greatws.WithServerCustomTaskMode("stream"))
-	case cnf.UnStreamMode:
-		opts = append(opts, greatws.WithServerUnstreamMode())
 	}
 
 	if len(cnf.CustomMode) > 0 {

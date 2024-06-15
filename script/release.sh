@@ -68,10 +68,6 @@ function tps_greatws_stream2() {
     run_test "greatws" "" "execlist" "24001"
 }
 
-function tps_greatws_unstream() {
-    echo "#### greatws runs on business goroutines(unstream)"
-    run_test "greatws" "-u" "unstream" "24001"
-}
 
 function tps_greatws_stream() {
     echo "#### greatws uses one Goroutine per connection"
@@ -116,7 +112,6 @@ function tps_test() {
 
     tps_greatws_io
     tps_greatws_stream2
-    tps_greatws_unstream
     tps_greatws_stream
     tps_quickws
 }
