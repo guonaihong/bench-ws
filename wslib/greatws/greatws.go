@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"sync/atomic"
 	"time"
+	"unsafe"
 
 	_ "net/http/pprof"
 
@@ -38,9 +39,10 @@ type Config struct {
 	DisableParseLoop bool `clop:"short;long" usage:"disable parse loopo"`
 	// 设置事件个数
 	EventNum int `clop:"long" usage:"event number"`
-	MaxGoNum int `clop:"long" usage:"max go number" default:"80"`
+	MaxGoNum int `clop:"long" usage:"max go number" default:"10000"`
 
 	ProcessSleep time.Duration `clop:"long" usage:"process sleep"`
+	Level        string        `clop:"long" usage:"log level"`
 	core.BaseCmd
 	m *greatws.MultiEventLoop
 }
@@ -75,18 +77,14 @@ func (e *echoHandler) OnMessage(c *greatws.Conn, op greatws.Opcode, msg []byte) 
 	// }
 	atomic.AddUint64(&total, 1)
 	if err := c.WriteMessage(op, msg); err != nil {
-		slog.Error("write fail:", err)
+		// slog.Error("write fail:", err)
 	} else {
 		atomic.AddUint64(&success, 1)
 	}
 }
 
 func (e *echoHandler) OnClose(c *greatws.Conn, err error) {
-	errMsg := "nil"
-	if err != nil {
-		errMsg = err.Error()
-	}
-	slog.Error("OnClose:", "err", errMsg)
+	slog.Error("OnClose:", "err", err.Error(), "conn", uintptr(unsafe.Pointer(c)))
 }
 
 func (h *Config) echo(w http.ResponseWriter, r *http.Request) {
@@ -111,12 +109,20 @@ func main() {
 		windowsSize = float32(cnf.WindowsMultipleTimesPayloadSize)
 	}
 
-	initCount, minCount, maxCount := 80, 10, cnf.MaxGoNum
+	initCount, minCount, maxCount := 60, 10, cnf.MaxGoNum
+	level := slog.LevelError
+
+	switch cnf.Level {
+	case "debug":
+		level = slog.LevelDebug
+	case "info":
+		level = slog.LevelInfo
+	}
 	evOpts := []greatws.EvOption{
 		greatws.WithEventLoops(cnf.EventNum),
 		greatws.WithBusinessGoNum(initCount, minCount, maxCount),
 		greatws.WithMaxEventNum(1000),
-		greatws.WithLogLevel(slog.LevelError),
+		greatws.WithLogLevel(level),
 	}
 
 	fmt.Printf("init:%d, min:%d, max:%d\n", initCount, minCount, maxCount)
@@ -136,7 +142,7 @@ func main() {
 		greatws.WithServerIgnorePong(),
 		greatws.WithServerCallback(&echoHandler{Config: &cnf}),
 		// greatws.WithServerEnableUTF8Check(),
-		// greatws.WithServerReadTimeout(60 * time.Second),
+		greatws.WithServerReadTimeout(60 * time.Second),
 		greatws.WithServerMultiEventLoop(cnf.m),
 
 		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
