@@ -2,6 +2,7 @@
 
 WS_PID=0
 DEFAULT_DIR="$1"
+SLEEP_SEC="1"
 BIN="./bin"
 TEST_SEC="10s"
 if [ -z $DEFAULT_DIR ]; then
@@ -49,12 +50,13 @@ function run_test() {
 
     kill_server
     sleep 1
-    $BIN/$BIN_NAME.$EXE $WS_ARGS &>/dev/null &
+    $BIN/$BIN_NAME.$EXE $WS_ARGS --addr ":$address" &>/dev/null &
     WS_PID=$!
     sleep 1
     FILE_NAME="$BIN_NAME-$FILE_SUFFIX"
     $BIN/bench-ws.$EXE -c 10000 -d $TEST_SEC -w "ws://127.0.0.1:$address/ws" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
     kill $WS_PID
+    sleep "$SLEEP_SEC"
 }
 
 function tps_greatws_io() {

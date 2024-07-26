@@ -1,9 +1,11 @@
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
-github.com/antlabs/greatws v0.2.1 h1:/4CEBbV+blagFujmTnuicuPciUyXu62gbmzC+ghEtLY=
-github.com/antlabs/greatws v0.2.1/go.mod h1:GwxB/h8o0rra0WQ+n2sSRpIBS2W3y5h/IFaQO9IMLGo=
-github.com/antlabs/quickws v0.2.1 h1:kQZE/zixgSGgFh2W+lVKPbfHXVqcAKw9RjnlGNe04MU=
-github.com/antlabs/quickws v0.2.1/go.mod h1:0YRoGzW5zSRi4+3DFA5yJROAHAxyPLf3LRuGz/X1L7o=
+github.com/antlabs/cpuproc v0.0.0-20240615150837-aa4bcf33806c h1:VHYsrGiynSH8kkauv8Gl+Xd9j883cyNJPUj6m7jEg44=
+github.com/antlabs/cpuproc v0.0.0-20240615150837-aa4bcf33806c/go.mod h1:xRJWwB0CjmTPmZ+I92DKy1N6N/7/IqMC9IPNLbE7Je4=
+github.com/antlabs/greatws v0.2.2 h1:hZZDKTmnwBVsTqsmWu4YvZu/CSqAggJqlkYlhmV8QKc=
+github.com/antlabs/greatws v0.2.2/go.mod h1:hH28cDJsGoia9P25KeOh9vdlHRNsTJSXXLknBWnWg5Y=
+github.com/antlabs/quickws v0.2.2 h1:p+ukHSazVtGHWDyZKZXzpYTe5XV2CT33nXNRAMH8rng=
+github.com/antlabs/quickws v0.2.2/go.mod h1:0YRoGzW5zSRi4+3DFA5yJROAHAxyPLf3LRuGz/X1L7o=
 github.com/antlabs/strsim v0.0.2 h1:R4qjokEegYTrw+fkcYj3/UndG9Cn136fH+fpw9TIz9k=
 github.com/antlabs/strsim v0.0.2/go.mod h1:95XAAF2dJK9IiZMc0Ue6H9t477/i6fvYoMoeey8sEnc=
 github.com/antlabs/wsutil v0.1.11 h1:bIVZ3Hxdq5ByZKu5OXL/cMtanEw6YlxdtUDiySI77Q0=
@@ -217,8 +219,8 @@ golang.org/x/sys v0.0.0-20220412211240-33da011f77ad/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.5.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.18.0 h1:DBdB3niSjOA/O0blCZBqDefyWNYveAYMNF1Wum0DYQ4=
-golang.org/x/sys v0.18.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
+golang.org/x/sys v0.20.0 h1:Od9JTbYCk261bKm4M/mw7AklTlFYIa0bIp9BgSm1S8Y=
+golang.org/x/sys v0.20.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=

@@ -1,12 +1,12 @@
 module github.com/guonaihong/bench-ws
 
-go 1.21
+go 1.21.1
 
-toolchain go1.21.0
+toolchain go1.22.2
 
 require (
-	github.com/antlabs/greatws v0.2.1
-	github.com/antlabs/quickws v0.2.1
+	github.com/antlabs/greatws v0.2.2
+	github.com/antlabs/quickws v0.2.2
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/cloudwego/hertz v0.8.0
 	github.com/fasthttp/websocket v1.5.4
@@ -24,6 +24,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/antlabs/cpuproc v0.0.0-20240615150837-aa4bcf33806c // indirect
 	github.com/antlabs/strsim v0.0.2 // indirect
 	github.com/antlabs/wsutil v0.1.11 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
@@ -69,7 +70,7 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

@@ -46,11 +46,11 @@ function run_test() {
     local server_name="$1"
     local address="$2"
     local suffix="$3"
-    local ws_arg="$"
+    # local ws_arg="$"
 
     echo "$server_name:"
     kill_all_servers
-    "$BIN/$server_name.$EXE" $ws_arg --addr ":$address" &>/dev/null &
+    "$BIN/$server_name.$EXE"  --addr ":$address" &>/dev/null &
     local PID=$!
     sleep 1
     FILE_NAME="${server_name}_${suffix}"
