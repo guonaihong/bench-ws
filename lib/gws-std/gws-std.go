@@ -16,6 +16,8 @@ import (
 	"github.com/lxzan/gws"
 )
 
+var upgrader *gws.Upgrader
+
 type Config struct {
 	// 打开性能优化开关
 	UseReader bool   `clop:"short;long" usage:"use reader"`
@@ -55,10 +57,6 @@ func setNoDelay(c net.Conn, noDelay bool) error {
 }
 
 func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
-	upgrader := gws.NewUpgrader(&Handler{Config: c}, &gws.ServerOption{
-		ReadBufferSize:  c.ReadBufferSize,
-		WriteBufferSize: c.ReadBufferSize,
-	})
 
 	conn, err := upgrader.Upgrade(w, r)
 	if err != nil {
@@ -96,6 +94,10 @@ func main() {
 	var cnf Config
 	clop.Bind(&cnf)
 
+	upgrader = gws.NewUpgrader(&Handler{Config: &cnf}, &gws.ServerOption{
+		ReadBufferSize:  cnf.ReadBufferSize,
+		WriteBufferSize: cnf.ReadBufferSize,
+	})
 	portRange, err := port.GetPortRange("GWS-STD")
 	if err != nil {
 		log.Fatalf("GetPortRange(%v) failed: %v", "GWS-STD", err)

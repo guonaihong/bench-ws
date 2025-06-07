@@ -25,6 +25,8 @@ type Config struct {
 	core.BaseCmd
 }
 
+var upgrader *gws.Upgrader
+
 type Handler struct {
 	*Config
 }
@@ -55,10 +57,6 @@ func setNoDelay(c net.Conn, noDelay bool) error {
 }
 
 func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
-	upgrader := gws.NewUpgrader(&Handler{Config: c}, &gws.ServerOption{
-		ReadBufferSize:  c.ReadBufferSize,
-		WriteBufferSize: c.ReadBufferSize,
-	})
 
 	conn, err := upgrader.Upgrade(w, r)
 	if err != nil {
@@ -82,6 +80,10 @@ func main() {
 	var cnf Config
 	clop.Bind(&cnf)
 
+	upgrader = gws.NewUpgrader(&Handler{Config: &cnf}, &gws.ServerOption{
+		ReadBufferSize:  cnf.ReadBufferSize,
+		WriteBufferSize: cnf.ReadBufferSize,
+	})
 	portRange, err := port.GetPortRange("GWS")
 	if err != nil {
 		log.Fatalf("GetPortRange(%v) failed: %v", "GWS", err)
