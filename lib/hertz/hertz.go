@@ -1,28 +1,39 @@
 package main
 
 import (
-	"io"
+	"context"
+	"fmt"
 	"log"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
-	"time"
+	"sync"
 
-	"github.com/fasthttp/websocket"
-	"github.com/guonaihong/bench-ws/config"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/guonaihong/bench-ws/core"
+	"github.com/guonaihong/bench-ws/pkg/port"
 	"github.com/guonaihong/clop"
+	"github.com/hertz-contrib/websocket"
 )
+
+var upgrader = websocket.HertzUpgrader{}
 
 type Config struct {
 	// 打开性能优化开关
 	UseReader bool   `clop:"short;long" usage:"use reader"`
 	Addr      string `clop:"short;long" usage:"websocket server address" default:":5555"`
+	// 打开tcp nodealy
+	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 	core.BaseCmd
 }
 
-var upgrader = websocket.Upgrader{}
+func setNoDelay(c net.Conn, noDelay bool) error {
+	if tcp, ok := c.(*net.TCPConn); ok {
+		return tcp.SetNoDelay(noDelay)
+	}
+	return nil
+}
 
 func (c *Config) work(conn *websocket.Conn) {
 	defer conn.Close()
@@ -41,6 +52,7 @@ func (c *Config) work(conn *websocket.Conn) {
 			}
 		}
 	}
+
 	var nread int
 	buffer := make([]byte, c.ReadBufferSize)
 	readBuffer := buffer
@@ -56,7 +68,7 @@ func (c *Config) work(conn *websocket.Conn) {
 			}
 			n, err := reader.Read(readBuffer[nread:])
 			nread += n
-			if err == io.EOF {
+			if err != nil {
 				break
 			}
 		}
@@ -69,52 +81,45 @@ func (c *Config) work(conn *websocket.Conn) {
 	}
 }
 
-func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Printf("upgrade failed: %v", err)
-		return
-	}
-	conn.SetReadDeadline(time.Time{})
+func (c *Config) startServer(port int, wg *sync.WaitGroup) {
+	defer wg.Done()
 
-	go c.work(conn)
-}
+	h := server.Default(
+		server.WithHostPorts(fmt.Sprintf(":%d", port)),
+	)
 
-func (c *Config) startServers(addrs []string) []net.Listener {
-	lns := make([]net.Listener, 0, len(addrs))
-	for _, addr := range addrs {
-		mux := &http.ServeMux{}
-		mux.HandleFunc("/ws", c.echo)
-		core.HandleCommon(mux)
-		server := http.Server{
-			// Addr:    addr,
-			Handler: mux,
-		}
-		ln, err := core.Listen("tcp", addr, c.Reuse)
+	h.GET("/ws", func(ctx context.Context, req *app.RequestContext) {
+		err := upgrader.Upgrade(req, func(conn *websocket.Conn) {
+			setNoDelay(conn.NetConn(), !c.OpenTcpDelay)
+			c.work(conn)
+		})
 		if err != nil {
-			log.Fatalf("Listen failed: %v", err)
+			log.Printf("upgrade failed: %v", err)
 		}
-		lns = append(lns, ln)
-		go func() {
-			log.Printf("server exit: %v", server.Serve(ln))
-		}()
-	}
-	return lns
+	})
+
+	go func() {
+		h.Spin()
+	}()
 }
+
 func main() {
 	var cnf Config
 	clop.Bind(&cnf)
 
-	addrs, err := config.GetFrameworkServerAddrs(config.Fasthttp, cnf.LimitPortRange)
+	portRange, err := port.GetPortRange("HERTZ")
 	if err != nil {
-		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Fasthttp, err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "HERTZ", err)
 	}
-	lns := core.StartServers(addrs, cnf.echo, cnf.Reuse)
+
+	wg := sync.WaitGroup{}
+	for port := portRange.Start; port <= portRange.End; port++ {
+		wg.Add(1)
+		go cnf.startServer(port, &wg)
+	}
+	wg.Wait()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt
-	for _, ln := range lns {
-		ln.Close()
-	}
 }

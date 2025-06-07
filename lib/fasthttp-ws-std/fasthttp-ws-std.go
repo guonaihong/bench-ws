@@ -1,18 +1,19 @@
 package main
 
 import (
-	"crypto/tls"
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
-	"github.com/guonaihong/bench-ws/config"
+	"github.com/fasthttp/websocket"
 	"github.com/guonaihong/bench-ws/core"
+	"github.com/guonaihong/bench-ws/pkg/port"
 	"github.com/guonaihong/clop"
 )
 
@@ -20,23 +21,10 @@ type Config struct {
 	// 打开性能优化开关
 	UseReader bool   `clop:"short;long" usage:"use reader"`
 	Addr      string `clop:"short;long" usage:"websocket server address" default:":5555"`
-	// 打开tcp nodealy
-	OpenTcpDelay bool `clop:"short;long" usage:"tcp delay"`
 	core.BaseCmd
 }
 
 var upgrader = websocket.Upgrader{}
-
-func setNoDelay(c net.Conn, noDelay bool) error {
-	if tcp, ok := c.(*net.TCPConn); ok {
-		return tcp.SetNoDelay(noDelay)
-	}
-
-	if tlsTCP, ok := c.(*tls.Conn); ok {
-		return setNoDelay(tlsTCP.NetConn(), noDelay)
-	}
-	return nil
-}
 
 func (c *Config) work(conn *websocket.Conn) {
 	defer conn.Close()
@@ -91,27 +79,47 @@ func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
 	}
 	conn.SetReadDeadline(time.Time{})
 
-	setNoDelay(conn.UnderlyingConn(), !c.OpenTcpDelay)
 	go c.work(conn)
+}
+
+func (c *Config) startServer(port int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	mux := &http.ServeMux{}
+	mux.HandleFunc("/ws", c.echo)
+
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}
+
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		log.Fatalf("Listen failed: %v", err)
+	}
+
+	go func() {
+		log.Printf("server exit: %v", server.Serve(ln))
+	}()
 }
 
 func main() {
 	var cnf Config
 	clop.Bind(&cnf)
 
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", cnf.echo)
-
-	addrs, err := config.GetFrameworkServerAddrs(config.Gorilla, cnf.LimitPortRange)
+	portRange, err := port.GetPortRange("FASTHTTP-WS-STD")
 	if err != nil {
-		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Gorilla, err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "FASTHTTP-WS-STD", err)
 	}
-	lns := core.StartServers(addrs, cnf.echo, cnf.Reuse)
+
+	wg := sync.WaitGroup{}
+	for port := portRange.Start; port <= portRange.End; port++ {
+		wg.Add(1)
+		go cnf.startServer(port, &wg)
+	}
+	wg.Wait()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt
-	for _, ln := range lns {
-		ln.Close()
-	}
 }
