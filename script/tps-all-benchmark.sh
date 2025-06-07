@@ -50,7 +50,7 @@ function run_test() {
 
     echo "$server_name:"
     kill_all_servers
-    "$BIN/$server_name.$EXE"  --addr ":$address" &>/dev/null &
+    "$BIN/$server_name.$EXE"  --ws-addr ":$address" &>/dev/null &
     local PID=$!
     sleep 1
     FILE_NAME="${server_name}_${suffix}"

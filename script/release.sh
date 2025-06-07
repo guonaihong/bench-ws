@@ -50,7 +50,7 @@ function run_test() {
 
     kill_server
     sleep 1
-    $BIN/$BIN_NAME.$EXE $WS_ARGS --addr ":$address" &>/dev/null &
+    $BIN/$BIN_NAME.$EXE $WS_ARGS --ws-addr ":$address" &>/dev/null &
     WS_PID=$!
     sleep 1
     FILE_NAME="$BIN_NAME-$FILE_SUFFIX"

@@ -6,7 +6,7 @@ source "$(dirname "$0")/config.sh"
 # Function to stop a server
 stop_server() {
     local lib_name=$1
-    local pid_file="/tmp/bench-tcp-$lib_name.pid"
+    local pid_file="/tmp/bench-ws-$lib_name.pid"
     
     if [ -f "$pid_file" ]; then
         local pid

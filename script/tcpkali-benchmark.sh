@@ -5,7 +5,7 @@ SLEEP_SEC="40"
 run_gws_test() {
     echo "gws:"
     killall gws-std.linux &>/dev/null
-    ./gws-std.linux --addr ":9001" &
+    ./gws-std.linux --ws-addr ":9001" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
@@ -15,7 +15,7 @@ run_gws_test() {
     
     echo "gws.asyncwrite:"
     killall gws-std.linux &>/dev/null
-    ./gws-std.linux -a --addr ":9001" &
+    ./gws-std.linux -a --ws-addr ":9001" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
@@ -25,7 +25,7 @@ run_gws_test() {
     
     echo "gws-std:"
     killall gws-std.linux &>/dev/null
-    ./gws-std.linux --addr ":9002" &
+    ./gws-std.linux --ws-addr ":9002" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
@@ -35,7 +35,7 @@ run_gws_test() {
     
     echo "gws.tcp-delay:"
     killall gws-std.linux &>/dev/null
-    ./gws.linux -o  --addr ":9002" &
+    ./gws.linux -o  --ws-addr ":9002" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
@@ -45,7 +45,7 @@ run_gws_test() {
     
     echo "gws-std.tcp-delay:"
     killall gws-std.linux &>/dev/null
-    ./gws-std.linux -o  --addr ":9002" &
+    ./gws-std.linux -o  --ws-addr ":9002" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
@@ -55,7 +55,7 @@ run_gws_test() {
     
     echo "gws-std.asyncwrite:"
     killall gws-std.linux &>/dev/null
-    ./gws-std.linux -a --addr ":9002" &
+    ./gws-std.linux -a --ws-addr ":9002" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9002/
@@ -152,7 +152,7 @@ run_quickws_bufio_tcp_delay_test() {
 run_gorilla_test() {
     echo "gorilla-linux-ReadMessage:"
     killall gorilla.linux  &>/dev/null
-    ./gorilla.linux --addr ":9003" &
+    ./gorilla.linux --ws-addr ":9003" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9003/
@@ -162,7 +162,7 @@ run_gorilla_test() {
     
     echo "gorilla-linux-UseReader:"
     killall gorilla.linux &>/dev/null
-    ./gorilla.linux --addr ":9004" -u &
+    ./gorilla.linux --ws-addr ":9004" -u &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9004/
@@ -172,7 +172,7 @@ run_gorilla_test() {
 
     echo "gorilla-linux-ReadMessage.tcp.delay:"
     killall gorilla.linux  &>/dev/null
-    ./gorilla.linux -o --addr ":9003" &
+    ./gorilla.linux -o --ws-addr ":9003" &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9003/
@@ -182,7 +182,7 @@ run_gorilla_test() {
 
     echo "gorilla-linux-UseReader.tcp.delay:"
     killall gorilla.linux &>/dev/null
-    ./gorilla.linux -o --addr ":9004" -u &
+    ./gorilla.linux -o --ws-addr ":9004" -u &
     PID=$!
     sleep 1
     tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9004/
@@ -271,7 +271,7 @@ run_greatws_test() {
 run_nettyws_test() {
   echo "nettyws:"
   killall nettyws.linux &>/dev/null
-  ./nettyws.linux --addr ":9005" &
+  ./nettyws.linux --ws-addr ":9005" &
   PID=$!
   sleep 1
   tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9005/
@@ -283,7 +283,7 @@ run_nettyws_test() {
 run_gobwas_test() {
   echo "gobwas:"
   killall gobwas &>/dev/null
-  ./gobwas.linux --addr ":9006" &
+  ./gobwas.linux --ws-addr ":9006" &
   PID=$!
   sleep 1
   tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9006/

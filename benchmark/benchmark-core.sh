@@ -52,7 +52,7 @@ duration_to_seconds() {
 CONCURRENCY=${1:-10000}  # Default to 10k connections if not specified
 DURATION=${2:-100s}      # Default to 100 seconds if not specified
 REBUILD=${3:-false}      # Whether to rebuild the project
-EXTRA_ARGS=${4:-""}      # Additional arguments to pass to bench-tcp
+EXTRA_ARGS=${4:-""}      # Additional arguments to pass to bench-ws
 
 # Rebuild if requested
 if [ "$REBUILD" = "true" ]; then
@@ -96,9 +96,9 @@ sleep 2
 # Detect OS type to use correct binary
 OSTYPE=$(uname -s)
 if [[ "$OSTYPE" == "Linux" ]]; then
-    BENCH_BIN="bin/bench-tcp.linux"
+    BENCH_BIN="bin/bench-ws.linux"
 elif [[ "$OSTYPE" == "Darwin" ]]; then
-    BENCH_BIN="bin/bench-tcp.mac"
+    BENCH_BIN="bin/bench-ws.mac"
 else
     log_with_timestamp "Unsupported OS: $OSTYPE"
     exit 1
@@ -119,9 +119,9 @@ run_benchmark() {
         return 1
     fi
 
-    log_with_timestamp "Running bench-tcp with parameters: -d $duration -c $concurrency --addr 127.0.0.1:$start_port-$end_port --open-tmp-result $EXTRA_ARGS"
-    # 运行bench-tcp客户端并将输出重定向到对应的.tps文件（使用PID后缀）
-    "$BENCH_BIN" -d "$duration" -c "$concurrency" --addr "127.0.0.1:$start_port-$end_port" --open-tmp-result $EXTRA_ARGS | tee "$SCRIPT_DIR/output/$server.$$.tps"
+    log_with_timestamp "Running bench-ws with parameters: -d $duration -c $concurrency --ws-addr ws://127.0.0.1:$start_port-$end_port --open-tmp-result $EXTRA_ARGS"
+    # 运行bench-ws客户端并将输出重定向到对应的.tps文件（使用PID后缀）
+    "$BENCH_BIN" -d "$duration" -c "$concurrency" --ws-addr "ws://127.0.0.1:$start_port-$end_port" --open-tmp-result $EXTRA_ARGS | tee "$SCRIPT_DIR/output/$server.$$.tps"
 }
 
 log_with_timestamp "Running benchmarks with concurrency: $CONCURRENCY, duration: $DURATION"
@@ -152,7 +152,7 @@ for server in "${ENABLED_SERVERS[@]}"; do
     start_var="${server_upper}_START_PORT"
     end_var="${server_upper}_END_PORT"
     
-    # Run bench-tcp with port range
+    # Run bench-ws with port range
     log_with_timestamp "Testing $server on port range ${!start_var}-${!end_var}..."
     
     if [ ! -x "$BENCH_BIN" ]; then
@@ -162,7 +162,7 @@ for server in "${ENABLED_SERVERS[@]}"; do
     
     # 启动性能数据收集（在后台）
     # 获取服务器PID
-    SERVER_PID_FILE="/tmp/bench-tcp-$server.pid"
+    SERVER_PID_FILE="/tmp/bench-ws-$server.pid"
     if [ -f "$SERVER_PID_FILE" ]; then
         SERVER_PID=$(cat "$SERVER_PID_FILE")
         log_with_timestamp "Found server PID for $server: $SERVER_PID"

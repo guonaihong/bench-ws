@@ -24,7 +24,7 @@ import (
 // https://github.com/snapview/tokio-tungstenite/blob/master/examples/autobahn-client.rs
 
 type Client struct {
-	WSAddr         string        `clop:"short;long" usage:"WebSocket server address (e.g., ws://host:port or ws://host:minport-maxport)" default:""`
+	WSAddr         string        `clop:"short;--ws-addr" usage:"WebSocket server address (e.g., ws://host:port or ws://host:minport-maxport)" default:""`
 	Name           string        `clop:"short;long" usage:"Server name" default:""`
 	Label          string        `clop:"long" usage:"Title of the chart for the line graph" default:""`
 	Total          int           `clop:"short;long" usage:"Total number of runs" default:"100"`

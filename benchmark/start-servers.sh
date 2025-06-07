@@ -54,7 +54,7 @@ start_server() {
     "$bin_path" &
     
     # Store the PID
-    echo $! > "/tmp/bench-tcp-$lib_name.pid"
+    echo $! > "/tmp/bench-ws-$lib_name.pid"
 }
 
 # Start enabled servers
@@ -62,5 +62,5 @@ for server in "${ENABLED_SERVERS[@]}"; do
     start_server "$server"
 done
 
-echo "All enabled servers started. PIDs stored in /tmp/bench-tcp-*.pid"
+echo "All enabled servers started. PIDs stored in /tmp/bench-ws-*.pid"
 echo "Use stop-servers.sh to stop all servers" 
