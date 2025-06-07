@@ -2,6 +2,11 @@
 
 压测websocket(quickws)的仓库
 
+### 一、终端压测
+```
+./benchmark/benchmark-c10k.sh
+```
+
 ### 一、如何在界面观看柱状图
 
 #### 1.1 依赖安装
@@ -74,10 +79,4 @@ npm install -g yarn
 tcpkali -c 10000 --connect-rate 10000 -r 10000 -T 30s -f 1K.txt --ws 127.0.0.1:9001/
 ```
 
-### 四、批量跑tps压测
-
-```
-make
-./script/tps-all-benchmark.sh
-```
 
