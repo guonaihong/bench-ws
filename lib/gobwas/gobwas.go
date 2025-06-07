@@ -108,10 +108,11 @@ func main() {
 	var cnf Config
 	clop.Bind(&cnf)
 
-	portRange, err := port.GetPortRange("GOBWA")
+	portRange, err := port.GetPortRange("GOBWAS")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "GOBWA", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "GOBWAS", err)
 	}
+	fmt.Println("GOBWAS server starting on ports", portRange.Start, "-", portRange.End)
 
 	wg := sync.WaitGroup{}
 	for port := portRange.Start; port <= portRange.End; port++ {

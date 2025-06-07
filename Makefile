@@ -8,6 +8,7 @@ build-web:
 
 build-linux:
 	# 编译linux
+	GOOS=linux GOARCH=amd64 go build -o ./bin/nhooyr.linux ./lib/nhooyr/nhooyr.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/quickws.linux ./lib/quickws/quickws.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/greatws.linux ./lib/greatws/greatws.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/greatws.race.linux ./lib/greatws/greatws.go
@@ -28,6 +29,7 @@ build-linux:
 
 build-freebsd:
 	# 编译freebsd
+	GOOS=freebsd GOARCH=amd64 go build -o ./bin/nhooyr.freebsd ./lib/nhooyr/nhooyr.go
 	GOOS=freebsd GOARCH=amd64 go build -o ./bin/quickws.freebsd ./lib/quickws/quickws.go
 	GOOS=freebsd GOARCH=amd64 go build -o ./bin/greatws.freebsd ./lib/greatws/greatws.go
 	GOOS=freebsd GOARCH=amd64 go build -o ./bin/greatws.race.freebsd ./lib/greatws/greatws.go
@@ -48,6 +50,7 @@ build-freebsd:
 
 build-mac:
 	# 编译mac
+	GOOS=darwin GOARCH=arm64 go build -o ./bin/nhooyr.mac ./lib/nhooyr/nhooyr.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/quickws.mac ./lib/quickws/quickws.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/greatws.mac ./lib/greatws/greatws.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/gws.mac ./lib/gws/gws.go

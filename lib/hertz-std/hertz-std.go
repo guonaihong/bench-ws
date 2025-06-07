@@ -37,10 +37,11 @@ func main() {
 	hlog.SetLevel(hlog.LevelFatal)
 	gopool.SetCap(1000000)
 
-	portRange, err := port.GetPortRange("HERTZSTD")
+	portRange, err := port.GetPortRange("HERTZ-STD")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "HERTZSTD", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "HERTZ-STD", err)
 	}
+	fmt.Println("HERTZ-STD server starting on ports", portRange.Start, "-", portRange.End)
 	wg := sync.WaitGroup{}
 	defer wg.Wait()
 	for port := portRange.Start; port <= portRange.End; port++ {
