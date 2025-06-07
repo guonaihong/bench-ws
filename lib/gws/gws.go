@@ -72,20 +72,10 @@ func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
 func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	mux := &http.ServeMux{}
-	mux.HandleFunc("/", c.echo)
+	server := gws.NewServer(new(Handler), &gws.ServerOption{})
 
-	server := http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
-	}
+	server.Run(fmt.Sprintf(":%d", port))
 
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		log.Fatalf("Listen failed: %v", err)
-	}
-
-	log.Printf("server exit: %v", server.Serve(ln))
 }
 
 func main() {
@@ -97,6 +87,7 @@ func main() {
 		log.Fatalf("GetPortRange(%v) failed: %v", "GWS", err)
 	}
 
+	fmt.Println("GWS server starting on ports", portRange.Start, "-", portRange.End)
 	wg := sync.WaitGroup{}
 	for port := portRange.Start; port <= portRange.End; port++ {
 		wg.Add(1)

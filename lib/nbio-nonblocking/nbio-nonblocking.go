@@ -96,24 +96,30 @@ func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 
 type allocator struct{}
 
-func (a *allocator) Malloc(size int) []byte {
-	return make([]byte, size)
+func (a *allocator) Malloc(size int) *[]byte {
+	rv := make([]byte, size)
+	return &rv
 }
 
-func (a *allocator) Realloc(buf []byte, size int) []byte {
-	if size <= cap(buf) {
-		return buf[:size]
+func (a *allocator) Realloc(buf *[]byte, size int) *[]byte {
+	if size <= cap(*buf) {
+		rv := (*buf)[:size]
+		return &rv
 	}
-	return append(buf, make([]byte, size-cap(buf))...)
+
+	rv := append(*buf, make([]byte, size-cap(*buf))...)
+	return &rv
 }
 
-func (a *allocator) Append(buf []byte, more ...byte) []byte {
-	return append(buf, more...)
+func (a *allocator) Append(buf *[]byte, more ...byte) *[]byte {
+	rv := append(*buf, more...)
+	return &rv
 }
 
-func (a *allocator) AppendString(buf []byte, more string) []byte {
-	return append(buf, more...)
+func (a *allocator) AppendString(buf *[]byte, more string) *[]byte {
+	rv := append(*buf, more...)
+	return &rv
 }
 
-func (a *allocator) Free(buf []byte) {
+func (a *allocator) Free(buf *[]byte) {
 }

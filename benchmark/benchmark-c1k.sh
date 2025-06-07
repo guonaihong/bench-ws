@@ -4,7 +4,7 @@
 # First argument controls whether to rebuild (default: true)
 REBUILD=${1:-true}
 
-"$(dirname "$0")/benchmark-core.sh" 1000 10s "$REBUILD"
+"$(dirname "$0")/benchmark-core.sh" 1000 4s "$REBUILD"
 
 # Exit with the same status as the core script
 exit $? 
