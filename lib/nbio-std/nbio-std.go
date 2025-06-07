@@ -1,14 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net"
 	"net/http"
-	"os"
-	"os/signal"
+	"sync"
 	"time"
 
-	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/bench-ws/core"
+	"github.com/guonaihong/bench-ws/pkg/port"
 	"github.com/guonaihong/clop"
 	"github.com/lesismal/nbio/logging"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -19,6 +20,24 @@ var upgrader = websocket.NewUpgrader()
 type Config struct {
 	Addr string `clop:"short;long" usage:"websocket server address" default:":4444""`
 	core.BaseCmd
+}
+
+func (cnf *Config) startServer(port int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	mux := &http.ServeMux{}
+	mux.HandleFunc("/ws", onWebsocket)
+
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}
+
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		log.Fatalf("Listen failed: %v", err)
+	}
+	fmt.Println(server.Serve(ln))
 }
 
 func main() {
@@ -32,17 +51,16 @@ func main() {
 	upgrader.KeepaliveTime = 0
 	upgrader.BlockingModAsyncWrite = false
 
-	addrs, err := config.GetFrameworkServerAddrs(config.NbioStd, cnf.LimitPortRange)
+	portRange, err := port.GetPortRange("NBIOWS")
 	if err != nil {
-		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioStd, err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "NBIOWS", err)
 	}
-	lns := core.StartServers(addrs, onWebsocket, cnf.Reuse)
 
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-	<-interrupt
-	for _, ln := range lns {
-		ln.Close()
+	wg := sync.WaitGroup{}
+	defer wg.Wait()
+	for port := portRange.Start; port <= portRange.End; port++ {
+		wg.Add(1)
+		go cnf.startServer(port, &wg)
 	}
 }
 

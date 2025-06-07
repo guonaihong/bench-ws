@@ -1,16 +1,17 @@
 package main
 
 import (
-	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"sync"
 	"time"
 
-	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/bench-ws/core"
+	"github.com/guonaihong/bench-ws/pkg/port"
 	"github.com/guonaihong/clop"
 
 	// "github.com/lesismal/nbio/log"
@@ -46,18 +47,21 @@ func main() {
 	})
 	upgrader.KeepaliveTime = 0
 
-	addrs, err := config.GetFrameworkServerAddrs(config.NbioModNonblocking, cnf.LimitPortRange)
+	portRange, err := port.GetPortRange("NBIOMODNONBLOCKING")
 	if err != nil {
-		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.NbioModNonblocking, err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "NBIOMODNONBLOCKING", err)
 	}
-	engine := cnf.startServers(addrs)
+
+	wg := sync.WaitGroup{}
+	defer wg.Wait()
+	for port := portRange.Start; port <= portRange.End; port++ {
+		wg.Add(1)
+		go cnf.startServer(port, &wg)
+	}
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
-	defer cancel()
-	engine.Shutdown(ctx)
 }
 
 func onWebsocket(w http.ResponseWriter, r *http.Request) {
@@ -69,17 +73,18 @@ func onWebsocket(w http.ResponseWriter, r *http.Request) {
 	c.SetReadDeadline(time.Time{})
 }
 
-func (c *Config) startServers(addrs []string) *nbhttp.Engine {
+func (c *Config) startServer(port int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	mux := &http.ServeMux{}
 	mux.HandleFunc("/ws", onWebsocket)
-	core.HandleCommon(mux)
 	engine := nbhttp.NewEngine(nbhttp.Config{
 		Network:                 "tcp",
-		Addrs:                   addrs,
+		Addrs:                   []string{fmt.Sprintf(":%d", port)},
 		Handler:                 mux,
 		IOMod:                   nbhttp.IOModNonBlocking,
 		ReleaseWebsocketPayload: true,
-		Listen:                  core.Listen2(c.Reuse),
+		// Listen:                  core.Listen2(c.Reuse),
 	})
 
 	err := engine.Start()
@@ -87,7 +92,6 @@ func (c *Config) startServers(addrs []string) *nbhttp.Engine {
 		log.Fatalf("nbio.Start failed: %v", err)
 	}
 
-	return engine
 }
 
 type allocator struct{}

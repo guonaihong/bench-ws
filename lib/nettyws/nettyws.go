@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
+	"sync"
 
 	nettyws "github.com/go-netty/go-netty-ws"
-	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/bench-ws/core"
+	"github.com/guonaihong/bench-ws/pkg/port"
 	"github.com/guonaihong/clop"
 )
 
@@ -32,39 +31,34 @@ func main() {
 	cnf := &Conf{}
 	clop.Bind(cnf)
 
-	addrs, err := config.GetFrameworkServerAddrs(config.GoNettyWs, cnf.LimitPortRange)
+	portRange, err := port.GetPortRange("NETTYWS")
 	if err != nil {
-		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.GoNettyWs, err)
-	}
-	svrs := cnf.startServers(addrs)
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-	<-interrupt
-	for _, svr := range svrs {
-		svr.Close()
+		log.Fatalf("GetPortRange(%v) failed: %v", "NETTYWS", err)
 	}
 
+	wg := sync.WaitGroup{}
+	defer wg.Wait()
+	for port := portRange.Start; port <= portRange.End; port++ {
+		wg.Add(1)
+		go cnf.startServer(port, &wg)
+	}
 }
 
-func (c *Conf) startServers(addrs []string) []*nettyws.Websocket {
-	svrs := make([]*nettyws.Websocket, 0, len(addrs))
-	for _, addr := range addrs {
-		var mux = http.NewServeMux()
-		core.HandleCommon(mux)
-		var ws = nettyws.NewWebsocket(
-			nettyws.WithServeMux(mux),
-			nettyws.WithBinary(),
-			nettyws.WithNoDelay(c.Nodelay),
-			nettyws.WithBufferSize(2048, 0),
-		)
-		svrs = append(svrs, ws)
-		ws.OnData = func(conn nettyws.Conn, data []byte) {
-			conn.Write(data)
-		}
-		addr := fmt.Sprintf("%s/ws", addr)
-		go func() {
-			log.Printf("server exit: %v", ws.Listen(addr))
-		}()
+func (c *Conf) startServer(port int, wg *sync.WaitGroup) {
+
+	defer wg.Done()
+
+	mux := &http.ServeMux{}
+
+	var ws = nettyws.NewWebsocket(
+		nettyws.WithServeMux(mux),
+		nettyws.WithBinary(),
+		nettyws.WithNoDelay(c.Nodelay),
+		nettyws.WithBufferSize(2048, 0),
+	)
+
+	ws.OnData = func(conn nettyws.Conn, data []byte) {
+		conn.Write(data)
 	}
-	return svrs
+	ws.Listen(fmt.Sprintf(":%d", port))
 }

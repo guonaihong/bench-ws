@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"net"
 	"net/http"
-	"os"
-	"os/signal"
+	"sync"
 	"sync/atomic"
 	"time"
 	"unsafe"
@@ -15,8 +15,8 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/antlabs/greatws"
-	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/bench-ws/core"
+	"github.com/guonaihong/bench-ws/pkg/port"
 	"github.com/guonaihong/clop"
 )
 
@@ -93,6 +93,27 @@ func (h *Config) echo(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Upgrade fail:", "err", err.Error())
 	}
 	_ = c
+}
+
+func (cnf *Config) startServer(port int, wg *sync.WaitGroup) {
+	go func() {
+		defer wg.Done()
+
+		mux := &http.ServeMux{}
+		mux.HandleFunc("/ws", cnf.echo)
+
+		server := http.Server{
+			Addr:    fmt.Sprintf(":%d", port),
+			Handler: mux,
+		}
+
+		ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+		if err != nil {
+			log.Fatalf("Listen failed: %v", err)
+		}
+
+		log.Printf("server exit: %v", server.Serve(ln))
+	}()
 }
 
 func main() {
@@ -183,16 +204,15 @@ func main() {
 		}
 	}()
 
-	addrs, err := config.GetFrameworkServerAddrs(config.Greatws, cnf.LimitPortRange)
+	portRange, err := port.GetPortRange("GREATWS")
 	if err != nil {
-		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Quickws, err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "GREATWS", err)
 	}
 
-	lns := core.StartServers(addrs, cnf.echo, cnf.Reuse)
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-	<-interrupt
-	for _, ln := range lns {
-		ln.Close()
+	wg := sync.WaitGroup{}
+	defer wg.Wait()
+	for port := portRange.Start; port <= portRange.End; port++ {
+		wg.Add(1)
+		go cnf.startServer(port, &wg)
 	}
 }

@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -14,7 +16,7 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/antlabs/quickws"
-	"github.com/guonaihong/bench-ws/config"
+	"github.com/guonaihong/bench-ws/pkg/port"
 	"github.com/guonaihong/bench-ws/report"
 	"github.com/guonaihong/clop"
 )
@@ -238,21 +240,88 @@ func (c *Client) Run(now time.Time) {
 	}
 }
 
+func (c *Client) initAddrs() error {
+	if c.WSAddr == "" {
+		return fmt.Errorf("addr is required")
+	}
+
+	// Check if the address contains a port range
+	if strings.Contains(c.WSAddr, ":") {
+		parts := strings.Split(c.WSAddr, ":")
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid address format")
+		}
+
+		host := parts[0]
+		portStr := parts[1]
+
+		// Check if it's a port range
+		if strings.Contains(portStr, "-") {
+			portRange := strings.Split(portStr, "-")
+			if len(portRange) != 2 {
+				return fmt.Errorf("invalid port range format")
+			}
+
+			start, err := strconv.Atoi(portRange[0])
+			if err != nil {
+				return fmt.Errorf("invalid start port: %v", err)
+			}
+
+			end, err := strconv.Atoi(portRange[1])
+			if err != nil {
+				return fmt.Errorf("invalid end port: %v", err)
+			}
+
+			// Generate addresses for the port range
+			for port := start; port <= end; port++ {
+				c.addrs = append(c.addrs, fmt.Sprintf("%s:%d", host, port))
+			}
+		} else {
+			// Single port
+			c.addrs = []string{c.WSAddr}
+		}
+	} else {
+		// Try to get port range from environment variables
+		if c.Name != "" {
+			portRange, err := port.GetPortRange(c.Name)
+			if err == nil {
+				host := c.WSAddr
+				for p := portRange.Start; p <= portRange.End; p++ {
+					c.addrs = append(c.addrs, fmt.Sprintf("%s:%d", host, p))
+				}
+			} else {
+				// Fallback to single address
+				c.addrs = []string{c.WSAddr}
+			}
+		} else {
+			c.addrs = []string{c.WSAddr}
+		}
+	}
+
+	if len(c.addrs) == 0 {
+		return fmt.Errorf("no valid addresses found")
+	}
+
+	return nil
+}
+
 func main() {
 	var c Client
 
 	clop.MustBind(&c)
+	// Initialize addresses with port ranges
+	if err := c.initAddrs(); err != nil {
+		fmt.Printf("Error initializing addresses: %v\n", err)
+		os.Exit(1)
+	}
+
 	if len(c.Text) > 0 {
 		payload = []byte(c.Text)
 	} else {
 		payload = bytes.Repeat([]byte("𠜎"), c.PayloadSize/len("𠜎"))
 	}
 
-	if c.WSAddr == "" && c.Name == "" {
-		fmt.Printf("wsaddr or name is required, ./bench-ws -h\n")
-		os.Exit(1)
-	}
-	c.addrs = config.GenerateAddrs(c.WSAddr, c.Name)
+	fmt.Printf("addrs: %v\n", c.addrs)
 	data := make(chan struct{}, c.Total)
 
 	now := time.Now()

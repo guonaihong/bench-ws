@@ -6,12 +6,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
-	"os"
-	"os/signal"
+	"sync"
 
-	"github.com/guonaihong/bench-ws/config"
 	"github.com/guonaihong/bench-ws/core"
+	"github.com/guonaihong/bench-ws/pkg/port"
 
 	// _ "net/http/pprof"
 
@@ -72,13 +72,32 @@ func (e *echoHandler) OnClose(c *quickws.Conn, err error) {
 
 // echo测试服务
 func (cnf *Config) echo(w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r)
+	c, err := upgrader.UpgradeV2(w, r, &echoHandler{Config: cnf})
 	if err != nil {
 		fmt.Println("Upgrade fail:", err)
 		return
 	}
 
 	c.StartReadLoop()
+}
+
+func (cnf *Config) startServer(port int, wg *sync.WaitGroup) {
+
+	defer wg.Done()
+	mux := &http.ServeMux{}
+	mux.HandleFunc("/ws", cnf.echo)
+
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}
+
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		log.Fatalf("Listen failed: %v", err)
+	}
+
+	log.Printf("server exit: %v", server.Serve(ln))
 }
 
 func main() {
@@ -129,16 +148,16 @@ func main() {
 
 	upgrader = quickws.NewUpgrade(opt...)
 
-	addrs, err := config.GetFrameworkServerAddrs(config.Quickws, cnf.LimitPortRange)
+	portRange, err := port.GetPortRange("QUICKWS")
 	if err != nil {
-		log.Fatalf("GetFrameworkBenchmarkAddrs(%v) failed: %v", config.Quickws, err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "QUICKWS", err)
 	}
 
-	lns := core.StartServers(addrs, cnf.echo, cnf.Reuse)
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-	<-interrupt
-	for _, ln := range lns {
-		ln.Close()
+	wg := sync.WaitGroup{}
+	for port := portRange.Start; port <= portRange.End; port++ {
+		wg.Add(1)
+		go cnf.startServer(port, &wg)
 	}
+	wg.Wait()
+
 }
