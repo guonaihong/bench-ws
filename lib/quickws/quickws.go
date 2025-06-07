@@ -153,6 +153,7 @@ func main() {
 		log.Fatalf("GetPortRange(%v) failed: %v", "QUICKWS", err)
 	}
 
+	log.Printf("QuickWS server starting on ports %d-%d", portRange.Start, portRange.End)
 	wg := sync.WaitGroup{}
 	for port := portRange.Start; port <= portRange.End; port++ {
 		wg.Add(1)

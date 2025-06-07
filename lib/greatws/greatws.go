@@ -12,7 +12,7 @@ import (
 	"time"
 	"unsafe"
 
-	_ "net/http/pprof"
+	// _ "net/http/pprof"
 
 	"github.com/antlabs/greatws"
 	"github.com/guonaihong/bench-ws/core"
@@ -96,24 +96,22 @@ func (h *Config) echo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cnf *Config) startServer(port int, wg *sync.WaitGroup) {
-	go func() {
-		defer wg.Done()
+	defer wg.Done()
 
-		mux := &http.ServeMux{}
-		mux.HandleFunc("/", cnf.echo)
+	mux := &http.ServeMux{}
+	mux.HandleFunc("/", cnf.echo)
 
-		server := http.Server{
-			Addr:    fmt.Sprintf(":%d", port),
-			Handler: mux,
-		}
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}
 
-		ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-		if err != nil {
-			log.Fatalf("Listen failed: %v", err)
-		}
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		log.Fatalf("Listen failed: %v", err)
+	}
 
-		log.Printf("server exit: %v", server.Serve(ln))
-	}()
+	log.Printf("server exit: %v", server.Serve(ln))
 }
 
 func main() {
@@ -122,7 +120,7 @@ func main() {
 	clop.Bind(&cnf)
 
 	go func() {
-		log.Println(http.ListenAndServe(":6060", nil))
+		// log.Println(http.ListenAndServe(":6060", nil))
 	}()
 
 	windowsSize := float32(1.0)

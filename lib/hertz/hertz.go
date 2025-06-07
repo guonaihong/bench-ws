@@ -98,9 +98,7 @@ func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 		}
 	})
 
-	go func() {
-		h.Spin()
-	}()
+	h.Spin()
 }
 
 func main() {

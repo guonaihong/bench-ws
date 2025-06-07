@@ -85,9 +85,7 @@ func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 		log.Fatalf("Listen failed: %v", err)
 	}
 
-	go func() {
-		log.Printf("server exit: %v", server.Serve(ln))
-	}()
+	log.Printf("server exit: %v", server.Serve(ln))
 }
 
 func main() {

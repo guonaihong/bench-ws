@@ -245,9 +245,35 @@ func (c *Client) initAddrs() error {
 		return fmt.Errorf("addr is required")
 	}
 
+	// Handle WebSocket URL format (ws:// or wss://)
+	addr := c.WSAddr
+	var isWebSocketURL bool
+	var scheme string
+	var pathPart string
+
+	if strings.HasPrefix(addr, "ws://") || strings.HasPrefix(addr, "wss://") {
+		isWebSocketURL = true
+		// Extract scheme
+		if strings.HasPrefix(addr, "ws://") {
+			scheme = "ws://"
+			addr = strings.TrimPrefix(addr, "ws://")
+		} else {
+			scheme = "wss://"
+			addr = strings.TrimPrefix(addr, "wss://")
+		}
+
+		// Extract path part if present
+		if idx := strings.Index(addr, "/"); idx != -1 {
+			pathPart = addr[idx:]
+			addr = addr[:idx]
+		}
+
+		// Now addr should be in format "host:port" or "host:startport-endport"
+	}
+
 	// Check if the address contains a port range
-	if strings.Contains(c.WSAddr, ":") {
-		parts := strings.Split(c.WSAddr, ":")
+	if strings.Contains(addr, ":") {
+		parts := strings.Split(addr, ":")
 		if len(parts) != 2 {
 			return fmt.Errorf("invalid address format")
 		}
@@ -274,27 +300,47 @@ func (c *Client) initAddrs() error {
 
 			// Generate addresses for the port range
 			for port := start; port <= end; port++ {
-				c.addrs = append(c.addrs, fmt.Sprintf("%s:%d", host, port))
+				if isWebSocketURL {
+					c.addrs = append(c.addrs, fmt.Sprintf("%s%s:%d%s", scheme, host, port, pathPart))
+				} else {
+					c.addrs = append(c.addrs, fmt.Sprintf("%s:%d", host, port))
+				}
 			}
 		} else {
 			// Single port
-			c.addrs = []string{c.WSAddr}
+			if isWebSocketURL {
+				c.addrs = []string{c.WSAddr} // Keep the original WebSocket URL
+			} else {
+				c.addrs = []string{addr}
+			}
 		}
 	} else {
 		// Try to get port range from environment variables
 		if c.Name != "" {
 			portRange, err := port.GetPortRange(c.Name)
 			if err == nil {
-				host := c.WSAddr
+				host := addr
 				for p := portRange.Start; p <= portRange.End; p++ {
-					c.addrs = append(c.addrs, fmt.Sprintf("%s:%d", host, p))
+					if isWebSocketURL {
+						c.addrs = append(c.addrs, fmt.Sprintf("%s%s:%d%s", scheme, host, p, pathPart))
+					} else {
+						c.addrs = append(c.addrs, fmt.Sprintf("%s:%d", host, p))
+					}
 				}
 			} else {
 				// Fallback to single address
-				c.addrs = []string{c.WSAddr}
+				if isWebSocketURL {
+					c.addrs = []string{c.WSAddr}
+				} else {
+					c.addrs = []string{addr}
+				}
 			}
 		} else {
-			c.addrs = []string{c.WSAddr}
+			if isWebSocketURL {
+				c.addrs = []string{c.WSAddr}
+			} else {
+				c.addrs = []string{addr}
+			}
 		}
 	}
 
