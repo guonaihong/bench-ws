@@ -36,10 +36,11 @@ func main() {
 	upgrader.KeepaliveTime = 0
 	upgrader.BlockingModAsyncWrite = false
 
-	portRange, err := port.GetPortRange("NBIOMODBLOCKING")
+	portRange, err := port.GetPortRange("NBIO-BLOCKING")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "NBIOMODBLOCKING", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "NBIO-BLOCKING", err)
 	}
+	fmt.Println("NBIO-BLOCKING server starting on ports", portRange.Start, "-", portRange.End)
 	wg := sync.WaitGroup{}
 	defer wg.Wait()
 	for port := portRange.Start; port <= portRange.End; port++ {

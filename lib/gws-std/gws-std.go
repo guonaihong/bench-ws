@@ -67,6 +67,10 @@ func (c *Config) echo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	setNoDelay(conn.NetConn(), !c.OpenTcpDelay)
+	go func() {
+		conn.ReadLoop()
+	}()
+
 }
 
 func (c *Config) startServer(port int, wg *sync.WaitGroup) {
@@ -97,6 +101,7 @@ func main() {
 		log.Fatalf("GetPortRange(%v) failed: %v", "GWS-STD", err)
 	}
 
+	fmt.Println("GWS-STD server starting on ports", portRange.Start, "-", portRange.End)
 	wg := sync.WaitGroup{}
 	for port := portRange.Start; port <= portRange.End; port++ {
 		wg.Add(1)

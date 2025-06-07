@@ -51,10 +51,11 @@ func main() {
 	upgrader.KeepaliveTime = 0
 	upgrader.BlockingModAsyncWrite = false
 
-	portRange, err := port.GetPortRange("NBIOWS")
+	portRange, err := port.GetPortRange("NBIO-STD")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "NBIOWS", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "NBIO-STD", err)
 	}
+	fmt.Println("NBIO-STD server starting on ports", portRange.Start, "-", portRange.End)
 
 	wg := sync.WaitGroup{}
 	defer wg.Wait()

@@ -47,10 +47,11 @@ func main() {
 	})
 	upgrader.KeepaliveTime = 0
 
-	portRange, err := port.GetPortRange("NBIOMODNONBLOCKING")
+	portRange, err := port.GetPortRange("NBIO-NONBLOCKING")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "NBIOMODNONBLOCKING", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "NBIO-NONBLOCKING", err)
 	}
+	fmt.Println("NBIO-NONBLOCKING server starting on ports", portRange.Start, "-", portRange.End)
 
 	wg := sync.WaitGroup{}
 	defer wg.Wait()

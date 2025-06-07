@@ -39,10 +39,11 @@ func main() {
 	upgrader.KeepaliveTime = 0
 	upgrader.BlockingModAsyncWrite = false
 
-	portRange, err := port.GetPortRange("NBIOMODMIXED")
+	portRange, err := port.GetPortRange("NBIO-MIXED")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "NBIOMODMIXED", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "NBIO-MIXED", err)
 	}
+	fmt.Println("NBIO-MIXED server starting on ports", portRange.Start, "-", portRange.End)
 	wg := sync.WaitGroup{}
 	defer wg.Wait()
 	for port := portRange.Start; port <= portRange.End; port++ {
