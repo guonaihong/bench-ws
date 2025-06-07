@@ -26,7 +26,7 @@ func (cnf *Config) startServer(port int, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/ws", onWebsocket)
+	mux.HandleFunc("/", onWebsocket)
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),

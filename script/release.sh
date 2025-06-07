@@ -54,7 +54,7 @@ function run_test() {
     WS_PID=$!
     sleep 1
     FILE_NAME="$BIN_NAME-$FILE_SUFFIX"
-    $BIN/bench-ws.$EXE -c 10000 -d $TEST_SEC -w "ws://127.0.0.1:$address/ws" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
+    $BIN/bench-ws.$EXE -c 10000 -d $TEST_SEC -w "ws://127.0.0.1:$address/" --conns 10000 --JSON --label $FILE_NAME &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
     kill $WS_PID
     sleep "$SLEEP_SEC"
 }

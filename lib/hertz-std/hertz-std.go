@@ -63,7 +63,7 @@ func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 	srv := server.New(server.WithHostPorts(fmt.Sprintf(":%d", port)),
 		server.WithTransport(standard.NewTransporter))
 	pprof.Register(srv)
-	srv.GET("/ws", c.onWebsocket)
+	srv.GET("/", c.onWebsocket)
 	srv.GET("/pid", onServerPid)
 	srv.Spin()
 }

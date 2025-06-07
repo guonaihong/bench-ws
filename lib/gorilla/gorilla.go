@@ -101,7 +101,7 @@ func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/ws", c.echo)
+	mux.HandleFunc("/", c.echo)
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),

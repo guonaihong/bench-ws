@@ -88,7 +88,7 @@ func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 		server.WithHostPorts(fmt.Sprintf(":%d", port)),
 	)
 
-	h.GET("/ws", func(ctx context.Context, req *app.RequestContext) {
+	h.GET("/", func(ctx context.Context, req *app.RequestContext) {
 		err := upgrader.Upgrade(req, func(conn *websocket.Conn) {
 			setNoDelay(conn.NetConn(), !c.OpenTcpDelay)
 			c.work(conn)

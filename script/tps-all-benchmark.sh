@@ -54,7 +54,7 @@ function run_test() {
     local PID=$!
     sleep 1
     FILE_NAME="${server_name}_${suffix}"
-    "$BIN/bench-ws.$EXE" -c 10000 -d $TEST_SEC -w "ws://127.0.0.1:$address/ws" \
+    "$BIN/bench-ws.$EXE" -c 10000 -d $TEST_SEC -w "ws://127.0.0.1:$address/" \
                          --conns 10000 --JSON --label "$FILE_NAME" \
                          &> "$DEFAULT_DIR/$FILE_NAME.tmp.json"
     kill "$PID"

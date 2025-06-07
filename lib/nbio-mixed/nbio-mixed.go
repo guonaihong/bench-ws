@@ -59,7 +59,7 @@ func (c *Config) startServer(port int, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/ws", onWebsocket)
+	mux.HandleFunc("/", onWebsocket)
 	engine := nbhttp.NewEngine(nbhttp.Config{
 		Network:                 "tcp",
 		Addrs:                   []string{fmt.Sprintf(":%d", port)},
