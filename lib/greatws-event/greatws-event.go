@@ -158,7 +158,7 @@ func main() {
 		// greatws.WithServerEnableUTF8Check(),
 		greatws.WithServerReadTimeout(60 * time.Second),
 		greatws.WithServerMultiEventLoop(cnf.m),
-
+		greatws.WithServerCallbackInEventLoop(),
 		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
 	}
 
@@ -197,11 +197,12 @@ func main() {
 		}
 	}()
 
-	portRange, err := port.GetPortRange("GREATWS")
+	portRange, err := port.GetPortRange("GREATWS-EVENT")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "GREATWS", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "GREATWS-EVENT", err)
 	}
 
+	fmt.Printf("GREATWS-EVENT port range: %d-%d\n", portRange.Start, portRange.End)
 	wg := sync.WaitGroup{}
 	defer wg.Wait()
 	for port := portRange.Start; port <= portRange.End; port++ {

@@ -9,6 +9,7 @@ require (
 	github.com/antlabs/quickws v0.2.2
 	github.com/bytedance/gopkg v0.1.1
 	github.com/cloudwego/hertz v0.10.0
+	github.com/coder/websocket v1.8.13
 	github.com/fasthttp/websocket v1.5.4
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-netty/go-netty-ws v1.0.10
@@ -31,7 +32,6 @@ require (
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/cloudwego/gopkg v0.1.4 // indirect
 	github.com/cloudwego/netpoll v0.7.0 // indirect
-	github.com/coder/websocket v1.8.13 // indirect
 	github.com/dolthub/maphash v0.1.0 // indirect
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect

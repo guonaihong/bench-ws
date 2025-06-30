@@ -4,19 +4,20 @@
 ENABLED_SERVERS=(
 "quickws"
 "greatws"
-"nhooyr"
-"gws"
-"gws-std"
-"gorilla"
-"gobwas"
-"nettyws"
-"nbio-std"
-"nbio-nonblocking"
-"nbio-blocking"
-"nbio-mixed"
-"fasthttp-ws-std"
-"hertz-std"
-"hertz"
+"greatws-event"
+# "nhooyr"
+# "gws"
+# "gws-std"
+# "gorilla"
+# "gobwas"
+# "nettyws"
+# "nbio-std"
+# "nbio-nonblocking"
+# "nbio-blocking"
+# "nbio-mixed"
+# "fasthttp-ws-std"
+# "hertz-std"
+# "hertz"
 )
 
 # Port ranges for different libraries (based on pkg/port/port.go defaults)
@@ -81,3 +82,7 @@ HERTZ_STD_END_PORT=3300
 # HERTZ (3400)
 HERTZ_START_PORT=3400
 HERTZ_END_PORT=3400
+
+# GREATWS-EVENT (3500)
+GREATWS_EVENT_START_PORT=3500
+GREATWS_EVENT_END_PORT=3500

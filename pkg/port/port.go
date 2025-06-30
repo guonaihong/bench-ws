@@ -30,6 +30,7 @@ var defaultPortRanges = map[string]PortRange{
 	"FASTHTTP-WS-STD":  {Start: 3200, End: 3200},
 	"HERTZ-STD":        {Start: 3300, End: 3300},
 	"HERTZ":            {Start: 3400, End: 3400},
+	"GREATWS-EVENT":    {Start: 3500, End: 3500},
 }
 
 // GetPortRange returns the port range for a given library name
