@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -134,6 +135,11 @@ func main() {
 	case "info":
 		level = slog.LevelInfo
 	}
+
+	if cnf.EventNum == 0 {
+		cnf.EventNum = runtime.NumCPU() / 4
+	}
+
 	evOpts := []greatws.EvOption{
 		greatws.WithEventLoops(cnf.EventNum),
 		greatws.WithBusinessGoNum(initCount, minCount, maxCount),
