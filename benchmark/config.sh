@@ -3,21 +3,22 @@
 # Array of enabled servers (uncomment the ones you want to run)
 ENABLED_SERVERS=(
 "quickws"
-"greatws"
-"greatws-event"
- "nhooyr"
- "gws"
- "gws-std"
- "gorilla"
- "gobwas"
- "nettyws"
- "nbio-std"
- "nbio-nonblocking"
- "nbio-blocking"
- "nbio-mixed"
- "fasthttp-ws-std"
- "hertz-std"
- "hertz"
+"greatws-io"
+"great-elastic"
+"greatws-onebyone"
+#  "nhooyr"
+#  "gws"
+#  "gws-std"
+#  "gorilla"
+#  "gobwas"
+#  "nettyws"
+#  "nbio-std"
+#  "nbio-nonblocking"
+#  "nbio-blocking"
+#  "nbio-mixed"
+#  "fasthttp-ws-std"
+#  "hertz-std"
+#  "hertz"
 )
 
 # Port ranges for different libraries (based on pkg/port/port.go defaults)
@@ -27,9 +28,9 @@ ENABLED_SERVERS=(
 QUICKWS_START_PORT=2000
 QUICKWS_END_PORT=2000
 
-# GreatWS (2100)
-GREATWS_START_PORT=2100
-GREATWS_END_PORT=2100
+# GreatWS-IO (2100)
+GREATWS_IO_START_PORT=2100
+GREATWS_IO_END_PORT=2100
 
 # Nhooyr (2200)
 NHOOYR_START_PORT=2200
@@ -83,6 +84,10 @@ HERTZ_STD_END_PORT=3300
 HERTZ_START_PORT=3400
 HERTZ_END_PORT=3400
 
-# GREATWS-EVENT (3500)
-GREATWS_EVENT_START_PORT=3500
-GREATWS_EVENT_END_PORT=3500
+# GREAT-ELASTIC (3500)
+GREAT_ELASTIC_START_PORT=3500
+GREAT_ELASTIC_END_PORT=3500
+
+# GREATWS-ONEBYONE (3600)
+GREATWS_ONEBYONE_START_PORT=3600
+GREATWS_ONEBYONE_END_PORT=3600

@@ -10,9 +10,9 @@ build-linux:
 	# 编译linux
 	#GOOS=linux GOARCH=amd64 go build -o ./bin/nhooyr.linux ./lib/nhooyr/nhooyr.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/quickws.linux ./lib/quickws/quickws.go
-	GOOS=linux GOARCH=amd64 go build -o ./bin/greatws.linux ./lib/greatws/greatws.go
-	GOOS=linux GOARCH=amd64 go build -o ./bin/greatws-event.linux ./lib/greatws-event/greatws-event.go
-	GOOS=linux GOARCH=amd64 go build -o ./bin/greatws.race.linux ./lib/greatws/greatws.go
+	GOOS=linux GOARCH=amd64 go build -o ./bin/greatws-io.linux ./lib/greatws-io/greatws-io.go
+	GOOS=linux GOARCH=amd64 go build -o ./bin/great-elastic.linux ./lib/great-elastic/great-elastic.go
+	GOOS=linux GOARCH=amd64 go build -o ./bin/greatws-onebyone.linux ./lib/greatws-onebyone/greatws-onebyone.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/gws.linux ./lib/gws/gws.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/gws-std.linux ./lib/gws-std/gws-std.go
 	GOOS=linux GOARCH=amd64 go build -o ./bin/gorilla.linux ./lib/gorilla/gorilla.go
@@ -33,8 +33,9 @@ build-mac:
 	# 编译mac
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/nhooyr.mac ./lib/nhooyr/nhooyr.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/quickws.mac ./lib/quickws/quickws.go
-	GOOS=darwin GOARCH=arm64 go build -o ./bin/greatws.mac ./lib/greatws/greatws.go
-	GOOS=darwin GOARCH=arm64 go build -o ./bin/greatws-event.mac ./lib/greatws-event/greatws-event.go
+	GOOS=darwin GOARCH=arm64 go build -o ./bin/greatws-io.mac ./lib/greatws-io/greatws-io.go
+	GOOS=darwin GOARCH=arm64 go build -o ./bin/greatws-onebyone.mac ./lib/greatws-onebyone/greatws-onebyone.go
+	GOOS=darwin GOARCH=arm64 go build -o ./bin/great-elastic.mac ./lib/great-elastic/great-elastic.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/gws.mac ./lib/gws/gws.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/gws-std.mac ./lib/gws-std/gws-std.go
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/gorilla.mac ./lib/gorilla/gorilla.go

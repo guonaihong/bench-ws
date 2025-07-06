@@ -21,9 +21,8 @@ import (
 )
 
 type Config struct {
-	RunInEventLoop bool   `clop:"long" usage:"run in event loop"`
-	Addr           string `clop:"short;long" usage:"websocket server address" default:":9001"`
-	EnableUtf8     bool   `clop:"short;long" usage:"enable utf8"`
+	Addr       string `clop:"short;long" usage:"websocket server address" default:":9001"`
+	EnableUtf8 bool   `clop:"short;long" usage:"enable utf8"`
 	// 几倍的窗口大小
 	WindowsMultipleTimesPayloadSize int `clop:"short;long" usage:"windows multiple times payload size"`
 	// 打开tcp nodealy
@@ -162,14 +161,6 @@ func main() {
 		greatws.WithServerWindowsMultipleTimesPayloadSize(windowsSize),
 	}
 
-	switch {
-	case cnf.RunInEventLoop:
-		opts = append(opts, greatws.WithServerCallbackInEventLoop())
-	case cnf.GoRoutineBindMode:
-	case cnf.StreamMode:
-		opts = append(opts, greatws.WithServerCustomTaskMode("stream"))
-	}
-
 	if len(cnf.CustomMode) > 0 {
 		opts = append(opts, greatws.WithServerCustomTaskMode(cnf.CustomMode))
 	}
@@ -197,12 +188,13 @@ func main() {
 		}
 	}()
 
-	portRange, err := port.GetPortRange("GREATWS-EVENT")
+	portRange, err := port.GetPortRange("GREATWS-IO")
 	if err != nil {
-		log.Fatalf("GetPortRange(%v) failed: %v", "GREATWS-EVENT", err)
+		log.Fatalf("GetPortRange(%v) failed: %v", "GREATWS-IO", err)
 	}
 
-	fmt.Printf("GREATWS-EVENT port range: %d-%d\n", portRange.Start, portRange.End)
+	fmt.Printf("GREATWS-IO port range: %d-%d\n", portRange.Start, portRange.End)
+
 	wg := sync.WaitGroup{}
 	defer wg.Wait()
 	for port := portRange.Start; port <= portRange.End; port++ {

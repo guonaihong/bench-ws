@@ -16,7 +16,7 @@ type PortRange struct {
 // Default port ranges for different libraries
 var defaultPortRanges = map[string]PortRange{
 	"QUICKWS":          {Start: 2000, End: 2000},
-	"GREATWS":          {Start: 2100, End: 2100},
+	"GREATWS-IO":       {Start: 2100, End: 2100},
 	"NHOOYR":           {Start: 2200, End: 2200},
 	"GWS":              {Start: 2300, End: 2300},
 	"GWS-STD":          {Start: 2400, End: 2400},
@@ -30,7 +30,8 @@ var defaultPortRanges = map[string]PortRange{
 	"FASTHTTP-WS-STD":  {Start: 3200, End: 3200},
 	"HERTZ-STD":        {Start: 3300, End: 3300},
 	"HERTZ":            {Start: 3400, End: 3400},
-	"GREATWS-EVENT":    {Start: 3500, End: 3500},
+	"GREAT-ELASTIC":    {Start: 3500, End: 3500},
+	"GREATWS-ONEBYONE": {Start: 3600, End: 3600},
 }
 
 // GetPortRange returns the port range for a given library name

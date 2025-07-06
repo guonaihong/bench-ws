@@ -1,11 +1,9 @@
 module github.com/guonaihong/bench-ws
 
-go 1.22
-
-toolchain go1.24.1
+go 1.24.1
 
 require (
-	github.com/antlabs/greatws v0.2.2
+	github.com/antlabs/greatws v0.2.3-0.20250706084108-c8be84b7bb32
 	github.com/antlabs/quickws v0.2.2
 	github.com/bytedance/gopkg v0.1.1
 	github.com/cloudwego/hertz v0.10.0
@@ -24,8 +22,9 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/antlabs/cpuproc v0.0.0-20240615150837-aa4bcf33806c // indirect
+	github.com/antlabs/pulse v0.0.0-20250706072419-b71307af8032 // indirect
 	github.com/antlabs/strsim v0.0.2 // indirect
+	github.com/antlabs/task v0.0.0-20250706071410-2137462668b9 // indirect
 	github.com/antlabs/wsutil v0.1.11 // indirect
 	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
@@ -33,6 +32,7 @@ require (
 	github.com/cloudwego/gopkg v0.1.4 // indirect
 	github.com/cloudwego/netpoll v0.7.0 // indirect
 	github.com/dolthub/maphash v0.1.0 // indirect
+	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
@@ -69,7 +69,7 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
